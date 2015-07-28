@@ -11,9 +11,9 @@ var RotationControl = React.createClass({
   },
 
   handleDragMove: function(e) {
-    var pos = this.props.layer.position;
+    var pos = this.props.svgObject.position;
 
-    var dr = Math.atan2(e.layerY, e.layerX) * 360 / 2 / Math.PI + 90;
+    var dr = Math.atan2(e.svgObjectY, e.svgObjectX) * 360 / 2 / Math.PI + 90;
     pos.r += dr;
     this.props.update({ position: pos });
   },
@@ -23,11 +23,11 @@ var RotationControl = React.createClass({
   },
 
   render: function() {
-    var layer = this.props.layer;
-    //var pos = layer.position;
+    var svgObject = this.props.svgObject;
+    //var pos = svgObject.position;
 
-    //var width = layer.position.width;
-    var height = layer.position.height;
+    //var width = svgObject.position.width;
+    var height = svgObject.position.height;
 
     return <g ref='container'>
               <rect className='rotation-line'

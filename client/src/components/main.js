@@ -1,6 +1,6 @@
 'use strict';
 
-var SvgLayerDemoApp = require('./SvgLayerDemoApp');
+var SvgEditLayersApp = require('./SvgEditLayersApp');
 var React = require('react');
 var Router = require('react-router');
 var Route = Router.Route;
@@ -8,8 +8,8 @@ var Route = Router.Route;
 var content = document.getElementById('content');
 
 var Routes = (
-  <Route handler={SvgLayerDemoApp}>
-    <Route name="/" handler={SvgLayerDemoApp}/>
+  <Route handler={SvgEditLayersApp}>
+    <Route name="/" handler={SvgEditLayersApp}/>
   </Route>
 );
 

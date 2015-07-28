@@ -5,49 +5,49 @@ var React = require('react');
 var ImagePreview = require('./preview/ImagePreview');
 var ImageSidebar = require('./sidebar/ImageSidebar');
 
-var emptyLayerOfType = function(type){
-	var layer = { type: type, position: { x: 100, y: 30, r: 0, width: 100, height: 50 } };
+var emptyObjectOfType = function(type){
+	var svgObject = { type: type, position: { x: 100, y: 30, r: 0, width: 100, height: 50 } };
 	if (type === 'rect') {
-		layer.fill = 'red';
+		svgObject.fill = 'red';
 	}
 	if (type === 'text') {
-		layer.text = 'Text';
+		svgObject.text = 'Text';
 	}
 
-	return layer;
+	return svgObject;
 };
 
 var ImageEditor = React.createClass({
 	getInitialState: function() {
-		return { image: this.props.initialImage, selectedLayer: null };
+		return { image: this.props.initialImage, selectedObject: null };
 	},
 
-	updateLayer: function(layer, attrs) {
+	updateObject: function(svgObject, attrs) {
 		for (var k in attrs) {
-			layer[k] = attrs[k];
+			svgObject[k] = attrs[k];
 		}
 		this.setState({ image: this.state.image });
 	},
 
-	selectLayer: function(layer) {
-		this.setState({ selectedLayer: layer });
+	selectObject: function(svgObject) {
+		this.setState({ selectedObject: svgObject });
 	},
 
-	addLayer: function(type) {
-		var layer = emptyLayerOfType(type);
-		this.state.image.layers.push(layer);
+	addObject: function(type) {
+		var svgObject = emptyObjectOfType(type);
+		this.state.image.svgObjects.push(svgObject);
 		this.setState({ image: this.state.image });
 	},
 
 	render: function() {
 		return <div className='image-editor'>
-					<ImageSidebar layer={this.state.selectedLayer}
-						addLayer={this.addLayer}
-						updateLayer={this.updateLayer}/>
+					<ImageSidebar svgObject={this.state.selectedObject}
+						addObject={this.addObject}
+						updateObject={this.updateObject}/>
 					<ImagePreview image={this.state.image}
-						selectedLayer={this.state.selectedLayer}
-						selectLayer={this.selectLayer}
-						updateLayer={this.updateLayer} />
+						selectedObject={this.state.selectedObject}
+						selectObject={this.selectObject}
+						updateObject={this.updateObject} />
 			</div>;
 	}
 });

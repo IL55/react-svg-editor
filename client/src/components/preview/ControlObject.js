@@ -5,7 +5,7 @@ var ControlPoint = require('./ControlPoint');
 var RotationControl = require('./RotationControl');
 var h = require('./svg-helpers');
 
-var ControlLayer = React.createClass({
+var ControlObject = React.createClass({
   getInitialState: function() {
     return { mouseDown: false, lastMouseX: 0, lastMouseY: 0 };
   },
@@ -18,12 +18,12 @@ var ControlLayer = React.createClass({
     this.props.handleDrag(false);
   },
   handleMouseMove: function(e) {
-    var layer = this.props.layer;
-    layer.position.x += e.pageX - this.state.lastMouseX;
-    layer.position.y += e.pageY - this.state.lastMouseY;
+    var svgObject = this.props.svgObject;
+    svgObject.position.x += e.pageX - this.state.lastMouseX;
+    svgObject.position.y += e.pageY - this.state.lastMouseY;
 
-    this.props.update(layer, {
-      position: layer.position
+    this.props.update(svgObject, {
+      position: svgObject.position
     });
     this.setState({ lastMouseX: e.pageX, lastMouseY: e.pageY });
   },
@@ -32,31 +32,31 @@ var ControlLayer = React.createClass({
     this.props.handleDrag(true, this.handleResizeMove, this.handleResizeEnd, this.refs.container);
   },
   handleResizeMove: function(e) {
-    var layer = this.props.layer;
-    var pos = layer.position;
+    var svgObject = this.props.svgObject;
+    var pos = svgObject.position;
 
     var z0 = Math.sqrt(Math.pow(pos.width / 2, 2) + Math.pow(pos.height / 2, 2));
-    var z1 = Math.sqrt(Math.pow(e.layerX, 2) + Math.pow(e.layerY, 2));
+    var z1 = Math.sqrt(Math.pow(e.svgObjectX, 2) + Math.pow(e.svgObjectY, 2));
 
     pos.scale = (pos.scale || 1) * z1 / z0;
 
-    this.props.update(layer, {
-      position: layer.position
+    this.props.update(svgObject, {
+      position: svgObject.position
     });
   },
   handleResizeEnd: function() {
     this.props.handleDrag(false);
   },
   render: function() {
-    if(!this.props.layer) {
+    if(!this.props.svgObject) {
       return <g></g>;
     }
 
-    var layer = this.props.layer;
-    var pos = layer.position;
+    var svgObject = this.props.svgObject;
+    var pos = svgObject.position;
 
-    var width = layer.position.width;
-    var height = layer.position.height;
+    var width = svgObject.position.width;
+    var height = svgObject.position.height;
 
     var controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
 
@@ -65,17 +65,17 @@ var ControlLayer = React.createClass({
       return <ControlPoint x={location[0]} y={location[1]} onMouseDown={self.handleResizeStart} key={i} />;
     });
 
-    return <g ref='container' transform={h.transformFor(layer.position)} onMouseDown={self.handleMouseDown}>
+    return <g ref='container' transform={h.transformFor(svgObject.position)} onMouseDown={self.handleMouseDown}>
           <rect className='halo' x={-pos.width / 2} y={-pos.height / 2} width={pos.width} height={pos.height}></rect>
 
           {controlPoints}
 
           <RotationControl
-            layer={layer}
+            svgObject={svgObject}
             update={this.props.update}
             handleDrag={this.props.handleDrag} />
          </g>;
   }
 });
 
-module.exports = ControlLayer;
+module.exports = ControlObject;

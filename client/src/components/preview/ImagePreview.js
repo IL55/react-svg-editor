@@ -2,39 +2,39 @@
 
 var React = require('react');
 
-var ControlLayer = require('./ControlLayer');
-var Layer = require('./Layer');
+var ControlObject = require('./ControlObject');
+var SvgObject = require('./SvgObject');
 
 var ImagePreview = React.createClass({
   getInitialState: function() {
     return { dragging: false };
   },
-  handleDrag: function(dragging, onMove, onUp, layer) {
-    this.layer = layer;
+  handleDrag: function(dragging, onMove, onUp, svgObject) {
+    this.svgObject = svgObject;
     this.mouseMoveHandler = onMove;
     this.mouseUpHandler = onUp;
     this.setState({ dragging: dragging });
   },
-  layerLocation: function(e) {
-    if(!this.layer) {
+  svgObjectLocation: function(e) {
+    if(!this.svgObject) {
       return null;
     }
 
     var screenPoint = this.refs.svg.getDOMNode().createSVGPoint();
     screenPoint.x = e.pageX;
     screenPoint.y = e.pageY;
-    var screenToLayer = this.layer.getDOMNode().getScreenCTM().inverse();
-    var layerPoint = screenPoint.matrixTransform(screenToLayer);
-    return layerPoint;
+    var screenToObject = this.svgObject.getDOMNode().getScreenCTM().inverse();
+    var svgObjectPoint = screenPoint.matrixTransform(screenToObject);
+    return svgObjectPoint;
   },
   handleMouseMove: function(e) {
     // TODO: use SVGLocatable.getScreenCTM() to provide local coords
     e.canvasX = e.pageX - 272;
     e.canvasY = e.pageY - 30;
-    var layerPoint = this.layerLocation(e);
-    if(layerPoint) {
-      e.layerX = layerPoint.x;
-      e.layerY = layerPoint.y;
+    var svgObjectPoint = this.svgObjectLocation(e);
+    if(svgObjectPoint) {
+      e.svgObjectX = svgObjectPoint.x;
+      e.svgObjectY = svgObjectPoint.y;
     }
     this.mouseMoveHandler.apply(null, arguments);
   },
@@ -47,10 +47,10 @@ var ImagePreview = React.createClass({
     var image = this.props.image;
     var dragging = this.props.dragging;
 
-    var selectlayer = this.props.selectLayer;
+    var selectsvgObject = this.props.selectObject;
 
-    var layers = image.layers.map(function(l, i) {
-      return <Layer layer={l} selectLayer={selectlayer} key={i}></Layer>;
+    var svgObjects = image.svgObjects.map(function(l, i) {
+      return <SvgObject svgObject={l} selectObject={selectsvgObject} key={i}></SvgObject>;
     });
 
     return <div className='image-preview'>
@@ -59,13 +59,13 @@ var ImagePreview = React.createClass({
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
               onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
 
-            {/* image layers */}
-            {layers}
+            {/* image svgObjects */}
+            {svgObjects}
 
-            {/* control layers */}
-            <ControlLayer layer={this.props.selectedLayer}
+            {/* control svgObjects */}
+            <ControlObject svgObject={this.props.selectedObject}
               handleDrag={this.handleDrag}
-              update={this.props.updateLayer}/>
+              update={this.props.updateObject}/>
           </svg>
         </div>;
   }
