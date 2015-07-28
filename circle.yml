@@ -1,0 +1,36 @@
+dependencies:
+  override:
+    - npm install:
+        pwd: client
+  cache_directories:
+    - client/node_modules
+
+machine:
+  environment:
+    NODE_ENV: test
+
+test:
+  override:
+    - grunt build:
+        pwd: client
+
+  post:
+    - sed -i -r '/^public\/?\s*$/d' .gitignore
+    - cp -aR client/dist/. ./public
+    # - sed -i -r '/^node_modules\/?\s*$/d' client/.gitignore
+    # - sed -i -r '/^bower_components\/?\s*$/d' client/.gitignore
+    - git config user.name "igor@salsitasoft.com"
+    - git config user.email "igor@salsitasoft.com"
+    - git --no-pager diff .gitignore
+    - git status
+    - git add -A
+    - git status
+    - git commit -m "build"
+    - git log -n3
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - git push -f git@heroku.com:edit-svg-layers.git ${CIRCLE_BRANCH}:master
+

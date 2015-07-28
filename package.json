@@ -1,0 +1,26 @@
+{
+  "name": "react-svg-editor",
+  "version": "0.1.2",
+  "description": "A simple Node.js server for host client react-svg-editor",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "~4.9.x",
+    "node-static": "^0.7.6"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IL55/react-svg-editor"
+  },
+  "keywords": [
+    "node",
+    "cellular",
+    "automate"
+  ],
+  "license": "MIT"
+}
