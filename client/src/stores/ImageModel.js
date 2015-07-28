@@ -36,7 +36,18 @@ var initialImage = {
         { type: 'text', position: { scale: 2, x: 100, y: 430, r: 10, width: 300, height: 100 }, text: 'Layer 4'}
       ]
     }
-  ]
+  ],
+  emptyObjectOfType: function(type) {
+    var svgObject = { type: type, position: { x: 100, y: 30, r: 0, width: 100, height: 50 } };
+    if (type === 'rect') {
+      svgObject.fill = 'red';
+    }
+    if (type === 'text') {
+      svgObject.text = 'Text';
+    }
+
+    return svgObject;
+  }
 };
 
 

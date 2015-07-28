@@ -2,22 +2,24 @@
 var React = require('react');
 var ObjectSidebar = require('./ObjectSidebar');
 var LayersSidebar = require('./LayersSidebar');
+var ObjectActions = require('actions/ObjectActions');
 
 
 var ImageSidebar = React.createClass({
   render: function() {
-    var addObject = this.props.addObject;
     var addTextObject = function() {
-      addObject('text');
+      ObjectActions.addNewObjectToLayer('text');
     };
     var addRectObject = function() {
-      addObject('rect');
+      ObjectActions.addNewObjectToLayer('rect');
     };
     return <div className='image-sidebar'>
               <h1>SVG Image Editor</h1>
               <LayersSidebar />
               <div className='add-svg-object'>
-                <strong>Add object:</strong>
+                <div>
+                  <strong>Add object to selected layer:</strong>
+                </div>
                 <button onClick={addTextObject}>Text</button>
                 <button onClick={addRectObject}>Rect</button>
               </div>

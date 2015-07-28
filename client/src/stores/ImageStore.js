@@ -4,6 +4,7 @@ var Reflux = require('reflux');
 //var Actions = require('actions/..');
 var ImageModel = require('./ImageModel');
 var LayerActions = require('actions/LayerActions');
+var ObjectActions = require('actions/ObjectActions');
 var _ = require('lodash');
 
 var ImageStore = Reflux.createStore({
@@ -14,7 +15,7 @@ var ImageStore = Reflux.createStore({
       // Register actions
       this.listenTo(LayerActions.changeLayerVisibility, this.onChangeLayerVisibility);
       this.listenTo(LayerActions.selectLayer, this.onSelectLayer);
-
+      this.listenTo(ObjectActions.addNewObjectToLayer, this.onAddNewObjectToLayer);
   },
   /**
    * get svg image model
@@ -40,6 +41,7 @@ var ImageStore = Reflux.createStore({
     // Pass on to listeners
     this.trigger(this.svgImage);
   },
+
   onSelectLayer: function(layerId) {
     // find layer and select it
     var layer = _.find(this.svgImage.svgLayers, {name: layerId});
@@ -57,6 +59,23 @@ var ImageStore = Reflux.createStore({
     layer.selected = true;
 
     // Pass on to listeners
+    this.trigger(this.svgImage);
+  },
+
+  onAddNewObjectToLayer: function(objectType) {
+    // find selected layer
+    var selectedlayer = _.find(this.svgImage.svgLayers, {selected: true});
+    if (!selectedlayer) {
+      // can't add anything
+      return;
+    }
+    // create new object
+    var svgObject = ImageModel.emptyObjectOfType(objectType);
+
+    // add to layer
+    selectedlayer.svgObjects.push(svgObject);
+
+    // fire update notification
     this.trigger(this.svgImage);
   }
 });
