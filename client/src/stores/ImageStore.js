@@ -11,8 +11,10 @@ var ImageStore = Reflux.createStore({
   init: function() {
       this.svgImage = ImageModel;
 
-      // Register statusUpdate action
+      // Register actions
       this.listenTo(LayerActions.changeLayerVisibility, this.onChangeLayerVisibility);
+      this.listenTo(LayerActions.selectLayer, this.onSelectLayer);
+
   },
   /**
    * get svg image model
@@ -37,8 +39,26 @@ var ImageStore = Reflux.createStore({
 
     // Pass on to listeners
     this.trigger(this.svgImage);
-  }
+  },
+  onSelectLayer: function(layerId) {
+    // find layer and select it
+    var layer = _.find(this.svgImage.svgLayers, {name: layerId});
+    if (!layer) {
+      // no any layer found
+      return;
+    }
 
+    // unselect previous layer
+    var previousSelectedlayer = _.find(this.svgImage.svgLayers, {selected: true});
+    if (previousSelectedlayer) {
+      previousSelectedlayer.selected = false;
+    }
+
+    layer.selected = true;
+
+    // Pass on to listeners
+    this.trigger(this.svgImage);
+  }
 });
 
 module.exports = ImageStore;

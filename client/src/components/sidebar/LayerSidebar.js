@@ -11,6 +11,10 @@ var LayerSidebar = React.createClass({
     LayerActions.changeLayerVisibility(this.props.svgLayer.name);
   },
 
+  selectLayer: function() {
+    LayerActions.selectLayer(this.props.svgLayer.name);
+  },
+
   render: function() {
     var eyeImg;
     if (this.props.svgLayer.visible) {
@@ -28,7 +32,7 @@ var LayerSidebar = React.createClass({
               <td onClick={this.changeLayerVisibility}>
                 <img src={eyeImg} className='eye-icon'/>
               </td>
-              <td>
+              <td onClick={this.selectLayer}>
                 {this.props.svgLayer.name}
               </td>
            </tr>;
