@@ -3,7 +3,7 @@
 var React = require('react');
 
 var ControlObject = require('./ControlObject');
-var SvgObject = require('./SvgObject');
+var SvgLayer = require('./SvgLayer');
 
 var ImagePreview = React.createClass({
   getInitialState: function() {
@@ -47,10 +47,10 @@ var ImagePreview = React.createClass({
     var image = this.props.image;
     var dragging = this.props.dragging;
 
-    var selectsvgObject = this.props.selectObject;
+    var selectSvgObject = this.props.selectObject;
 
-    var svgObjects = image.svgObjects.map(function(l, i) {
-      return <SvgObject svgObject={l} selectObject={selectsvgObject} key={i}></SvgObject>;
+    var svgLayers = image.svgLayers.map(function(l, i) {
+      return <SvgLayer svgLayer={l} selectObject={selectSvgObject} key={i}></SvgLayer>;
     });
 
     return <div className='image-preview'>
@@ -59,8 +59,8 @@ var ImagePreview = React.createClass({
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
               onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
 
-            {/* image svgObjects */}
-            {svgObjects}
+            {/* image svgLayers */}
+            {svgLayers}
 
             {/* control svgObjects */}
             <ControlObject svgObject={this.props.selectedObject}

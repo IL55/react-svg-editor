@@ -1,6 +1,7 @@
 'use strict';
 var React = require('react');
 var ObjectSidebar = require('./ObjectSidebar');
+var LayersSidebar = require('./LayersSidebar');
 
 
 var ImageSidebar = React.createClass({
@@ -14,6 +15,7 @@ var ImageSidebar = React.createClass({
     };
     return <div className='image-sidebar'>
               <h1>SVG Image Editor</h1>
+              <LayersSidebar />
               <div className='add-svg-object'>
                 <strong>Add object:</strong>
                 <button onClick={addTextObject}>Text</button>
