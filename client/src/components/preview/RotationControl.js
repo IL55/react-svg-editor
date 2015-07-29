@@ -2,6 +2,7 @@
 var React = require('react');
 
 var ControlPoint = require('./ControlPoint');
+var ObjectActions = require('actions/ObjectActions');
 
 var RotationControl = React.createClass({
   handleMouseDown: function(e) {
@@ -14,8 +15,10 @@ var RotationControl = React.createClass({
     var pos = this.props.svgObject.position;
 
     var dr = Math.atan2(e.svgObjectY, e.svgObjectX) * 360 / 2 / Math.PI + 90;
-    pos.r += dr;
-    this.props.update({ position: pos });
+    ;
+
+    var svgObject = this.props.svgObject;
+    ObjectActions.rotateObject(svgObject, { r: pos.r + dr });
   },
 
   handleDragEnd: function() {

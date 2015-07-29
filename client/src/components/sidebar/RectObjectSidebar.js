@@ -1,9 +1,10 @@
 'use strict';
 var React = require('react');
+var ObjectActions = require('actions/ObjectActions');
 
 var RectObjectSidebar = React.createClass({
   handleChange: function(e) {
-    this.props.updateObject(this.props.svgObject, {fill: e.target.value});
+    ObjectActions.updateObjectAttributes(this.props.svgObject, {fill: e.target.value});
   },
   render: function() {
     return <dl>

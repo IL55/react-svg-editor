@@ -13,9 +13,9 @@ var ObjectSidebar = React.createClass({
     var svgObjectControls = EmptyObjectSidebar;
     if (svgObject && svgObject.type) {
       if (svgObject.type === 'text') {
-        svgObjectControls = <TextObjectSidebar svgObject={svgObject} updateObject={this.props.updateObject} />;
+        svgObjectControls = <TextObjectSidebar svgObject={svgObject} />;
       } else {
-        svgObjectControls = <RectObjectSidebar svgObject={svgObject} updateObject={this.props.updateObject} />;
+        svgObjectControls = <RectObjectSidebar svgObject={svgObject} />;
       }
     }
     return <div className='svg-object-controls'>{svgObjectControls}</div>;

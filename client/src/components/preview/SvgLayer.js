@@ -9,7 +9,6 @@ var SvgLayer = React.createClass({
   },
   render: function() {
     var svgLayer = this.props.svgLayer;
-    var selectSvgObject = this.props.selectObject;
 
     var svgLayerClass = 'SvgLayer';
     if (svgLayer.visible) {
@@ -21,7 +20,7 @@ var SvgLayer = React.createClass({
     return <g className={svgLayerClass}>
             {
               svgLayer.svgObjects.map(function(l, i) {
-                return <SvgObject svgObject={l} selectObject={selectSvgObject} key={i}></SvgObject>;
+                return <SvgObject svgObject={l} key={i} id={i}></SvgObject>;
               })
             }
           </g>;

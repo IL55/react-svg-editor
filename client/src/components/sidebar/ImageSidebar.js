@@ -23,7 +23,7 @@ var ImageSidebar = React.createClass({
                 <button onClick={addTextObject}>Text</button>
                 <button onClick={addRectObject}>Rect</button>
               </div>
-              <ObjectSidebar svgObject={this.props.svgObject} updateObject={this.props.updateObject}/>
+              <ObjectSidebar svgObject={this.props.svgObject} />
             </div>;
   }
 });

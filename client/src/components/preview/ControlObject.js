@@ -4,6 +4,7 @@ var React = require('react');
 var ControlPoint = require('./ControlPoint');
 var RotationControl = require('./RotationControl');
 var h = require('./svg-helpers');
+var ObjectActions = require('actions/ObjectActions');
 
 var ControlObject = React.createClass({
   getInitialState: function() {
@@ -19,12 +20,15 @@ var ControlObject = React.createClass({
   },
   handleMouseMove: function(e) {
     var svgObject = this.props.svgObject;
-    svgObject.position.x += e.pageX - this.state.lastMouseX;
-    svgObject.position.y += e.pageY - this.state.lastMouseY;
 
-    this.props.update(svgObject, {
-      position: svgObject.position
+    //svgObject.position.x += e.pageX - this.state.lastMouseX;
+    //svgObject.position.y += e.pageY - this.state.lastMouseY;
+
+    ObjectActions.moveObject(svgObject, {
+      x: svgObject.position.x + e.pageX - this.state.lastMouseX,
+      y: svgObject.position.y + e.pageY - this.state.lastMouseY
     });
+
     this.setState({ lastMouseX: e.pageX, lastMouseY: e.pageY });
   },
   handleResizeStart: function(e) {
@@ -38,10 +42,8 @@ var ControlObject = React.createClass({
     var z0 = Math.sqrt(Math.pow(pos.width / 2, 2) + Math.pow(pos.height / 2, 2));
     var z1 = Math.sqrt(Math.pow(e.svgObjectX, 2) + Math.pow(e.svgObjectY, 2));
 
-    pos.scale = (pos.scale || 1) * z1 / z0;
-
-    this.props.update(svgObject, {
-      position: svgObject.position
+    ObjectActions.scaleObject(svgObject, {
+      scale: (pos.scale || 1) * z1 / z0
     });
   },
   handleResizeEnd: function() {
@@ -72,7 +74,6 @@ var ControlObject = React.createClass({
 
           <RotationControl
             svgObject={svgObject}
-            update={this.props.update}
             handleDrag={this.props.handleDrag} />
          </g>;
   }

@@ -1,11 +1,11 @@
 'use strict';
 var React = require('react');
-
 var h = require('./svg-helpers');
+var ObjectActions = require('actions/ObjectActions');
 
 var SvgObject = React.createClass({
   handleMouseDown: function() {
-    this.props.selectObject(this.props.svgObject);
+    ObjectActions.selectObjectInSelectedLayer(this.props.svgObject);
   },
   render: function() {
     var svgObject = this.props.svgObject;

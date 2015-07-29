@@ -33,7 +33,7 @@ var SvgEditLayersApp = React.createClass({
   render: function() {
     return (
       <div className='main'>
-        <ImageEditor initialImage={this.state.image}/>
+        <ImageEditor image={this.state.image}/>
       </div>
     );
   }

@@ -47,10 +47,8 @@ var ImagePreview = React.createClass({
     var image = this.props.image;
     var dragging = this.props.dragging;
 
-    var selectSvgObject = this.props.selectObject;
-
     var svgLayers = image.svgLayers.map(function(l, i) {
-      return <SvgLayer svgLayer={l} selectObject={selectSvgObject} key={i}></SvgLayer>;
+      return <SvgLayer svgLayer={l} key={i}></SvgLayer>;
     });
 
     return <div className='image-preview'>
@@ -64,8 +62,7 @@ var ImagePreview = React.createClass({
 
             {/* control svgObjects */}
             <ControlObject svgObject={this.props.selectedObject}
-              handleDrag={this.handleDrag}
-              update={this.props.updateObject}/>
+              handleDrag={this.handleDrag} />
           </svg>
         </div>;
   }
