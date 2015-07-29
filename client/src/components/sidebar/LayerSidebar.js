@@ -15,6 +15,14 @@ var LayerSidebar = React.createClass({
     LayerActions.selectLayer(this.props.svgLayer.name);
   },
 
+  preSelectlayer: function() {
+    LayerActions.preSelectLayer(this.props.svgLayer.name);
+  },
+
+  unPreSelectlayer: function() {
+    LayerActions.unPreSelectLayer(this.props.svgLayer.name);
+  },
+
   render: function() {
     var eyeImg;
     if (this.props.svgLayer.visible) {
@@ -28,7 +36,7 @@ var LayerSidebar = React.createClass({
       selectedClass += ' SelectedLayer';
     }
 
-    return <tr className={selectedClass}>
+    return <tr className={selectedClass} onMouseOver={this.preSelectlayer} onMouseLeave={this.unPreSelectlayer}>
               <td onClick={this.changeLayerVisibility}>
                 <img src={eyeImg} className='eye-icon'/>
               </td>

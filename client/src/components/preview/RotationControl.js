@@ -15,7 +15,6 @@ var RotationControl = React.createClass({
     var pos = this.props.svgObject.position;
 
     var dr = Math.atan2(e.svgObjectY, e.svgObjectX) * 360 / 2 / Math.PI + 90;
-    ;
 
     var svgObject = this.props.svgObject;
     ObjectActions.rotateObject(svgObject, { r: pos.r + dr });

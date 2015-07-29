@@ -17,6 +17,10 @@ var SvgLayer = React.createClass({
       svgLayerClass += ' hideLayer';
     }
 
+    if (svgLayer.preSelected) {
+      svgLayerClass += ' preSelected';
+    }
+
     return <g className={svgLayerClass}>
             {
               svgLayer.svgObjects.map(function(l, i) {
