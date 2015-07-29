@@ -21,9 +21,6 @@ var ControlObject = React.createClass({
   handleMouseMove: function(e) {
     var svgObject = this.props.svgObject;
 
-    //svgObject.position.x += e.pageX - this.state.lastMouseX;
-    //svgObject.position.y += e.pageY - this.state.lastMouseY;
-
     ObjectActions.moveObject(svgObject, {
       x: svgObject.position.x + e.pageX - this.state.lastMouseX,
       y: svgObject.position.y + e.pageY - this.state.lastMouseY

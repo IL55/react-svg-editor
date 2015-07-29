@@ -5,7 +5,7 @@ var ObjectActions = require('actions/ObjectActions');
 
 var SvgObject = React.createClass({
   handleMouseDown: function() {
-    ObjectActions.selectObjectInSelectedLayer(this.props.svgObject);
+    ObjectActions.selectObjectInSelectedLayer(this.props.layerID, this.props.objectID, this.props.svgObject);
   },
   render: function() {
     var svgObject = this.props.svgObject;

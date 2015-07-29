@@ -20,7 +20,7 @@ var SvgLayer = React.createClass({
     return <g className={svgLayerClass}>
             {
               svgLayer.svgObjects.map(function(l, i) {
-                return <SvgObject svgObject={l} key={i} id={i}></SvgObject>;
+                return <SvgObject svgObject={l} key={i} layerID={svgLayer.name} objectID={i}></SvgObject>;
               })
             }
           </g>;

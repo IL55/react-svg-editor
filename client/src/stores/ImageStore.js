@@ -82,6 +82,9 @@ var ImageStore = Reflux.createStore({
 
     layer.selected = true;
 
+    // remove object selection (due to in could be stay on other layer)
+    this.svgImage.selectedObject = null;
+
     // Pass on to listeners
     this.trigger(this.svgImage);
   },
@@ -138,8 +141,20 @@ var ImageStore = Reflux.createStore({
     this.trigger(this.svgImage);
   },
 
-  onSelectObjectInSelectedLayer: function(selectedObject) {
-    this.svgImage.selectedObject = selectedObject;
+  onSelectObjectInSelectedLayer: function(layerID, objectID) {
+    // find selected layer
+    var selectedlayer = _.find(this.svgImage.svgLayers, {selected: true});
+    if (!selectedlayer) {
+      // can't add anything
+      return;
+    }
+
+    if (selectedlayer.name !== layerID) {
+      // can't select object on the other layer
+      return;
+    }
+
+    this.svgImage.selectedObject = selectedlayer.svgObjects[objectID];
 
     // fire update notification
     this.trigger(this.svgImage);
