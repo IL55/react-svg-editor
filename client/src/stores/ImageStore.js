@@ -24,7 +24,8 @@ var ImageStore = Reflux.createStore({
       this.listenTo(LayerActions.addNewLayer, this.onAddNewLayer);
       this.listenTo(LayerActions.moveUpSelectedLayer, this.onMoveUpSelectedLayer);
       this.listenTo(LayerActions.moveDownSelectedLayer, this.onMoveDownSelectedLayer);
-
+      this.listenTo(LayerActions.createMaskFromSelectedLayer, this.onCreateMaskFromSelectedLayer);
+      this.listenTo(LayerActions.applyMaskToLayer, this.onApplyMaskToLayer);
 
 
       this.listenTo(ObjectActions.addNewObjectToLayer, this.onAddNewObjectToLayer);
@@ -66,6 +67,8 @@ var ImageStore = Reflux.createStore({
     } else {
       layer.visible = true;
     }
+
+    this.svgImage.selectedObject = null;
 
     // Pass on to listeners
     this.trigger(this.svgImage);
@@ -165,7 +168,7 @@ var ImageStore = Reflux.createStore({
    */
   onAddNewLayer: function() {
     // create new object with name
-    var newLayerName = 'Layer ' + (this.svgImage.svgLayers.length + 1);
+    var newLayerName = 'Layer' + (this.svgImage.svgLayers.length + 1);
     var newLayer = ImageModel.emptyLayer(newLayerName);
 
     this.svgImage.svgLayers.push(newLayer);
@@ -214,6 +217,50 @@ var ImageStore = Reflux.createStore({
     this.svgImage.svgLayers[layerIndex] = this.svgImage.svgLayers[layerIndex + 1];
     this.svgImage.svgLayers[layerIndex + 1] = temp;
 
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * create mask from selected layer
+   */
+  onCreateMaskFromSelectedLayer: function() {
+    // find layer
+    var layer = _.find(this.svgImage.svgLayers, {selected: true});
+    if (!layer) {
+      // no any layer found
+      return;
+    }
+
+    // create mask from layer
+    var mask = ImageModel.createMask(layer);
+
+    // push masks
+    this.svgImage.svgLayers.push(mask);
+
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * apply mask to specified layer
+   */
+  onApplyMaskToLayer: function(layerId) {
+    // find layer
+    var mask = _.find(this.svgImage.svgLayers, {selected: true, mask: true});
+    if (!mask) {
+      // no any layer found
+      return;
+    }
+
+    // find layer
+    var layer = _.find(this.svgImage.svgLayers, {name: layerId});
+    if (!layer) {
+      // no any layer found
+      return;
+    }
+
+    layer.maskAdded = mask.name;
+
+    // push masks
     this.trigger(this.svgImage);
   },
 
@@ -295,7 +342,6 @@ var ImageStore = Reflux.createStore({
     // find selected layer
     var selectedlayer = _.find(this.svgImage.svgLayers, {selected: true});
     if (!selectedlayer) {
-      // can't add anything
       return;
     }
 

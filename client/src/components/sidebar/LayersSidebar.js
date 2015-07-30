@@ -17,6 +17,13 @@ var LayersSidebar = React.createClass({
   layerAdd: function() {
     LayerActions.addNewLayer();
   },
+  layerMask: function() {
+    LayerActions.createMaskFromSelectedLayer();
+  },
+  applyMask: function(e) {
+    var layerID = e.target.value;
+    LayerActions.applyMaskToLayer(layerID);
+  },
   render: function() {
     var svgLayers = this.props.layers;
 
@@ -33,6 +40,19 @@ var LayersSidebar = React.createClass({
                 <div>
                   <button onClick={this.layerAdd}>Add New</button>
                   <button onClick={this.layerDelete}>Delete</button>
+                  <button onClick={this.layerMask}>Create mask</button>
+                </div>
+                <div>
+                  Apply mask to:
+                  <select onChange={this.applyMask}>
+                    {
+                      svgLayers.filter(function(l) {
+                        return !l.mask;
+                      }).map(function(l, i) {
+                        return <option value={l.name} key={i}>{l.name}</option>;
+                      })
+                    }
+                  </select>
                 </div>
               </div>
               <table>

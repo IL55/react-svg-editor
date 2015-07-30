@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash');
+
 var initialImage = {
   /**
    * width of svg image
@@ -23,7 +25,7 @@ var initialImage = {
        * name of layer (and it's id)
        * @type {string}
        */
-      name: 'Layer 1',
+      name: 'Layer1',
       /**
        * should be layer shown or hided
        * @type {boolean}
@@ -34,35 +36,32 @@ var initialImage = {
        * @type {list}
        */
       svgObjects: [
-        { type: 'text', position: { scale: 1, x: 400, y: 300, r: 20, width: 200, height: 100 }, text: 'Simple text 1'},
-        { type: 'text', position: { scale: 1.6, x: 400, y: 200, r: 90, width: 200, height: 100 }, text: 'Long long text 2'},
-        { type: 'rect', position: { scale: 1, x: 20, y: 20, r: 50, width: 20, height: 50 }, fill: 'green' },
-        { type: 'rect', position: { scale: 1, x: 320, y: 520, r: 150, width: 120, height: 250 }, fill: 'green' }
+        { type: 'rect', position: { scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }, fill: 'green' }
       ]
     },
     {
-      name: 'Layer 2',
+      name: 'Layer2',
       visible: true,
-      selected: true,
+      maskAdded: 'Layer3mask',
       svgObjects: [
-        { type: 'text', position: { scale: 1, x: 500, y: 30, r: 40, width: 200, height: 100 }, text: 'Layer 2'},
-        { type: 'rect', position: { scale: 1, x: 320, y: 120, r: 10, width: 110, height: 50 }, fill: 'red' }
+        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'blue' }
       ]
     },
     {
-      name: 'Layer 3',
+      name: 'Layer3',
       visible: false,
       svgObjects: [
-        { type: 'text', position: { scale: 4, x: 200, y: 200, r: 40, width: 100, height: 100 }, text: 'Layer 3'},
-        { type: 'rect', position: { scale: 1, x: 320, y: 420, r: 250, width: 50, height: 50 }, fill: 'blue' }
+        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
+        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' }
       ]
     },
     {
-      name: 'Layer 4',
+      name: 'Layer3mask',
       visible: true,
+      mask: true,
       svgObjects: [
-        { type: 'text', position: { scale: 2, x: 100, y: 430, r: 10, width: 300, height: 100 }, text: 'Layer 4'},
-        { type: 'rect', position: { scale: 1, x: 420, y: 120, r: 100, width: 20, height: 20 }, fill: 'yellow' }
+        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
+        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' }
       ]
     }
   ],
@@ -93,7 +92,20 @@ var initialImage = {
       visible: true,
       svgObjects: []
     };
+  },
+  /**
+   * create mask
+   * @param  {string} name  - layer name
+   * @return {object} new layer (group of svg objects)
+   */
+  createMask: function(layer) {
+    var mask = _.clone(layer, true);
+    mask.selected = false;
+    mask.name += 'mask';
+    mask.mask = true;
+    return mask;
   }
+
 };
 
 

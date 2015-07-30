@@ -1,12 +1,10 @@
 'use strict';
+
 var React = require('react');
 var SvgObject = require('./SvgObject');
 require('styles/SvgLayer.less');
 
 var SvgLayer = React.createClass({
-  handleMouseDown: function() {
-    this.props.selectLayer(this.props.svgLayer);
-  },
   render: function() {
     var svgLayer = this.props.svgLayer;
 
@@ -21,7 +19,13 @@ var SvgLayer = React.createClass({
       svgLayerClass += ' preSelected';
     }
 
-    return <g className={svgLayerClass}>
+    // add mask attribute if existed
+    var maskAdded = '';
+    if (svgLayer.maskAdded) {
+      maskAdded = 'url(#' + svgLayer.maskAdded + ')';
+    }
+
+    return <g className={svgLayerClass} mask={maskAdded}>
             {
               svgLayer.svgObjects.map(function(l, i) {
                 return <SvgObject svgObject={l} key={i} layerID={svgLayer.name} objectID={i}></SvgObject>;

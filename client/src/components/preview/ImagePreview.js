@@ -4,6 +4,7 @@ var React = require('react');
 
 var ControlObject = require('./ControlObject');
 var SvgLayer = require('./SvgLayer');
+var SvgMask = require('./SvgMask');
 
 var ImagePreview = React.createClass({
   getInitialState: function() {
@@ -47,8 +48,16 @@ var ImagePreview = React.createClass({
     var image = this.props.image;
     var dragging = this.props.dragging;
 
-    var svgLayers = image.svgLayers.map(function(l, i) {
+    var svgLayers = image.svgLayers.filter(function(l){
+      return !l.mask;
+    }).map(function(l, i) {
       return <SvgLayer svgLayer={l} key={i}></SvgLayer>;
+    });
+
+    var svgMasks = image.svgLayers.filter(function(l){
+      return (l.mask === true);
+    }).map(function(l, i) {
+      return <SvgMask svgMask={l} key={i}></SvgMask>;
     });
 
     return <div className='image-preview'>
@@ -56,6 +65,11 @@ var ImagePreview = React.createClass({
               height={image.height} width={image.width}
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
               onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
+
+            <defs>
+              {/* image svgLayers */}
+              {svgMasks}
+            </defs>
 
             {/* image svgLayers */}
             {svgLayers}
