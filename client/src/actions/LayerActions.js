@@ -6,6 +6,10 @@ var LayerActions = Reflux.createActions([
   'changeLayerVisibility',
   'selectLayer',
   'preSelectLayer',
-  'unPreSelectLayer'
+  'unPreSelectLayer',
+  'moveUpSelectedLayer',
+  'moveDownSelectedLayer',
+  'deleteSelectedLayer',
+  'addNewLayer'
 ]);
 module.exports = LayerActions;

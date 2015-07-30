@@ -15,7 +15,7 @@ var ImageSidebar = React.createClass({
     };
     return <div className='image-sidebar'>
               <h1>SVG Image Editor</h1>
-              <LayersSidebar />
+              <LayersSidebar layers={this.props.image.svgLayers}/>
               <div className='add-svg-object'>
                 <div>
                   <strong>Add object to selected layer:</strong>

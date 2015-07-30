@@ -1,22 +1,48 @@
 'use strict';
 var React = require('react');
-var ImageStore = require('stores/ImageStore');
 var LayerSidebar = require('./LayerSidebar');
+var LayerActions = require('actions/LayerActions');
 require('styles/LayersSidebar.less');
 
 var LayersSidebar = React.createClass({
+  layerUp: function() {
+    LayerActions.moveUpSelectedLayer();
+  },
+  layerDown: function() {
+    LayerActions.moveDownSelectedLayer();
+  },
+  layerDelete: function() {
+    LayerActions.deleteSelectedLayer();
+  },
+  layerAdd: function() {
+    LayerActions.addNewLayer();
+  },
   render: function() {
-    var svgLayers = ImageStore.getImage().svgLayers;
+    var svgLayers = this.props.layers;
+
+
     return <div className='LayersSidebar'>
               <div>
                 SVG Layers:
               </div>
+              <div>
+                <div>
+                  <button onClick={this.layerUp}>Layer Up</button>
+                  <button onClick={this.layerDown}>Layer Down</button>
+                </div>
+                <div>
+                  <button onClick={this.layerAdd}>Add New</button>
+                  <button onClick={this.layerDelete}>Delete</button>
+                </div>
+              </div>
               <table>
-              {
-                svgLayers.map(function(l, i) {
-                  return <LayerSidebar svgLayer={l} key={i}></LayerSidebar>;
-                })
-              }
+                <tbody>
+                {
+                  svgLayers.map(function(l, i) {
+                    return <LayerSidebar svgLayer={l} key={i}></LayerSidebar>;
+                  })
+                }
+                </tbody>
               </table>
             </div>;
   }

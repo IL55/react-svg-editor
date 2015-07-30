@@ -23,7 +23,7 @@ var initialImage = {
        * name of layer (and it's id)
        * @type {string}
        */
-      name: 'layer 1',
+      name: 'Layer 1',
       /**
        * should be layer shown or hided
        * @type {boolean}
@@ -41,7 +41,7 @@ var initialImage = {
       ]
     },
     {
-      name: 'layer 2',
+      name: 'Layer 2',
       visible: true,
       selected: true,
       svgObjects: [
@@ -50,7 +50,7 @@ var initialImage = {
       ]
     },
     {
-      name: 'layer 3',
+      name: 'Layer 3',
       visible: false,
       svgObjects: [
         { type: 'text', position: { scale: 4, x: 200, y: 200, r: 40, width: 100, height: 100 }, text: 'Layer 3'},
@@ -58,7 +58,7 @@ var initialImage = {
       ]
     },
     {
-      name: 'layer 4',
+      name: 'Layer 4',
       visible: true,
       svgObjects: [
         { type: 'text', position: { scale: 2, x: 100, y: 430, r: 10, width: 300, height: 100 }, text: 'Layer 4'},
@@ -81,6 +81,18 @@ var initialImage = {
     }
 
     return svgObject;
+  },
+  /**
+   * create empty layer object
+   * @param  {string} name  - layer name
+   * @return {object} new layer (group of svg objects)
+   */
+  emptyLayer: function(name) {
+    return {
+      name: name,
+      visible: true,
+      svgObjects: []
+    };
   }
 };
 
