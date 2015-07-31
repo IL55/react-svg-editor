@@ -159,6 +159,17 @@ var ImageStore = Reflux.createStore({
       return (layerIt.selected !== true);
     });
 
+    // if it is mask we should remove references from other layers
+    if (layer.mask) {
+      var refs = _.filter(this.svgImage.svgLayers, function(layerIt) {
+        return (layerIt.maskAdded === layer.name);
+      });
+
+      _.forEach(refs, function(layerIt) {
+        delete layerIt.maskAdded;
+      });
+    }
+
     // Pass on to listeners
     this.trigger(this.svgImage);
   },
