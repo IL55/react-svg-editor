@@ -12,7 +12,7 @@
   "dependencies": {
     "lodash": "^3.10.0",
     "normalize.css": "~3.0.3",
-    "react": "0.13.x",
+    "react": "https://github.com/IL55/react/raw/0.13-stable/build/react.tgz",
     "react-router": "0.13.x",
     "reflux": "^0.2.7"
   },

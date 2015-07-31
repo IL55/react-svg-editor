@@ -7,7 +7,6 @@ var DOMProperty = require('react/lib/DOMProperty');
 SVGDOMPropertyConfig.DOMAttributeNames.mask = 'mask';
 SVGDOMPropertyConfig.Properties.mask = DOMProperty.injection.MUST_USE_ATTRIBUTE;
 
-
 var SvgEditLayersApp = require('./SvgEditLayersApp');
 var React = require('react');
 var Router = require('react-router');
