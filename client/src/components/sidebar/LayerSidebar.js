@@ -29,7 +29,8 @@ var LayerSidebar = React.createClass({
 
   render: function() {
     var eyeImg;
-    if (this.props.svgLayer.visible) {
+    if (this.props.svgLayer.visible ||
+        this.props.svgLayer.mask) { // mask always visible
       eyeImg = openEyeImg;
     } else {
       eyeImg = closedEyeImg;
@@ -39,8 +40,6 @@ var LayerSidebar = React.createClass({
     if (this.props.svgLayer.selected) {
       selectedClass += ' SelectedLayer';
     }
-
-
 
     return <tr className={selectedClass} onMouseOver={this.preSelectlayer} onMouseLeave={this.unPreSelectlayer}>
               <td onClick={this.changeLayerVisibility}>

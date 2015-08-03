@@ -245,8 +245,16 @@ var ImageStore = Reflux.createStore({
     // create mask from layer
     var mask = ImageModel.createMask(layer);
 
-    // push masks
-    this.svgImage.svgLayers.push(mask);
+    // try to find if mask with same name exists already
+    var theSameNameMaskIndex = _.findIndex(this.svgImage.svgLayers, {name: mask.name});
+    if (theSameNameMaskIndex === -1) {
+      // push masks
+      this.svgImage.svgLayers.push(mask);
+    } else {
+      // update mask
+      this.svgImage[theSameNameMaskIndex] = mask;
+    }
+
 
     this.trigger(this.svgImage);
   },

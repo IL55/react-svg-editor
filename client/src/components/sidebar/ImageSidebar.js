@@ -6,22 +6,40 @@ var ObjectActions = require('actions/ObjectActions');
 
 
 var ImageSidebar = React.createClass({
-  render: function() {
-    var addTextObject = function() {
+  addTextObject: function() {
       ObjectActions.addNewObjectToLayer('text');
-    };
-    var addRectObject = function() {
-      ObjectActions.addNewObjectToLayer('rect');
-    };
+  },
+  addRectObject: function() {
+    ObjectActions.addNewObjectToLayer('rect');
+  },
+  render: function() {
+    var selectedLayer = _.find(this.props.image.svgLayers, {selected: true});
+    var layerOperationClass;
+    if (!selectedLayer ||
+        (selectedLayer && selectedLayer.mask)) {
+      layerOperationClass = 'hide';
+    } else {
+      layerOperationClass = 'show';
+    }
+
     return <div className='image-sidebar'>
               <h1>SVG Image Editor</h1>
-              <LayersSidebar layers={this.props.image.svgLayers}/>
-              <div className='add-svg-object'>
+              <LayersSidebar layers={this.props.image.svgLayers} selectedLayer={selectedLayer} />
+              <div className={layerOperationClass}>
                 <div>
-                  <strong>Add object to selected layer:</strong>
+                  Objects operations
                 </div>
-                <button onClick={addTextObject}>Text</button>
-                <button onClick={addRectObject}>Rect</button>
+                <div className='add-svg-object'>
+                  <div>
+                    Add object to selected layer:
+                  </div>
+                  <button type="button" className="btn btn-default" onClick={this.addTextObject} title="New text object">
+                    <span className="glyphicon glyphicon-text-color" aria-hidden="true">Text</span>
+                  </button>
+                  <button type="button" className="btn btn-default" onClick={this.addRectObject} title="New rectangle object">
+                    <span className="glyphicon glyphicon-stop" aria-hidden="true">Rect</span>
+                  </button>
+                </div>
               </div>
               <ObjectSidebar svgObject={this.props.svgObject} />
             </div>;

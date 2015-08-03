@@ -2,7 +2,6 @@
 var React = require('react');
 var LayerSidebar = require('./LayerSidebar');
 var LayerActions = require('actions/LayerActions');
-var _ = require('lodash');
 
 require('styles/LayersSidebar.less');
 
@@ -29,7 +28,7 @@ var LayersSidebar = React.createClass({
   render: function() {
     var svgLayers = this.props.layers;
 
-    var selectedLayer = _.find(svgLayers, {selected: true});
+    var selectedLayer = this.props.selectedLayer;
     var layerOperationClass;
     var createMaskClass;
     var applyMaskClass;
@@ -60,6 +59,9 @@ var LayersSidebar = React.createClass({
                   }
                   </tbody>
                 </table>
+              </div>
+              <div className={layerOperationClass}>
+                Layer operations
               </div>
               <div className={layerOperationClass}>
                 <div className="new-section">
