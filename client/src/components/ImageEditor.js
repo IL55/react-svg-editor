@@ -10,9 +10,9 @@ var ImageEditor = React.createClass({
   render: function() {
     return <div className='image-editor'>
           <ImageSidebar image={this.props.image}
-                        svgObject={this.props.image.selectedObject} />
+                        svgObject={this.props.image.get('selectedObject')} />
           <ImagePreview image={this.props.image}
-                        selectedObject={this.props.image.selectedObject} />
+                        selectedObject={this.props.image.get('selectedObject')} />
       </div>;
   }
 });

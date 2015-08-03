@@ -13,7 +13,10 @@ var ImageSidebar = React.createClass({
     ObjectActions.addNewObjectToLayer('rect');
   },
   render: function() {
-    var selectedLayer = _.find(this.props.image.svgLayers, {selected: true});
+    var layers = this.props.image.get('svgLayers');
+    var selectedLayer = layers.find(function(l) {
+      return l.selected;
+    });
     var layerOperationClass;
     if (!selectedLayer ||
         (selectedLayer && selectedLayer.mask)) {
@@ -24,7 +27,7 @@ var ImageSidebar = React.createClass({
 
     return <div className='image-sidebar'>
               <h1>SVG Image Editor</h1>
-              <LayersSidebar layers={this.props.image.svgLayers} selectedLayer={selectedLayer} />
+              <LayersSidebar layers={layers} selectedLayer={selectedLayer} />
               <div className={layerOperationClass}>
                 <div>
                   Objects operations

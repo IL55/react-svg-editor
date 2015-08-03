@@ -47,14 +47,15 @@ var ImagePreview = React.createClass({
   render: function() {
     var image = this.props.image;
     var dragging = this.props.dragging;
+    var svgLayersOriginal = image.get('svgLayers');
 
-    var svgLayers = image.svgLayers.filter(function(l){
+    var svgLayers = svgLayersOriginal.filter(function(l){
       return !l.mask;
     }).map(function(l, i) {
       return <SvgLayer svgLayer={l} key={i}></SvgLayer>;
     });
 
-    var svgMasks = image.svgLayers.filter(function(l){
+    var svgMasks = svgLayersOriginal.filter(function(l){
       return (l.mask === true);
     }).map(function(l, i) {
       return <SvgMask svgMask={l} key={i}></SvgMask>;
@@ -62,7 +63,7 @@ var ImagePreview = React.createClass({
 
     return <div className='image-preview'>
           <svg ref='svg' className={dragging ? 'dragging' : 'not-dragging'}
-              height={image.height} width={image.width}
+              height={image.get('height')} width={image.get('width')}
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
               onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
 
