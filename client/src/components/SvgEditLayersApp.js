@@ -3,6 +3,7 @@
 var React = require('react/addons');
 
 // CSS
+require('bootstrap/dist/css/bootstrap.min.css');
 require('normalize.css');
 require('../styles/main.css');
 

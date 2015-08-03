@@ -12,6 +12,7 @@ var LayerActions = Reflux.createActions([
   'deleteSelectedLayer',
   'addNewLayer',
   'createMaskFromSelectedLayer',
-  'applyMaskToLayer'
+  'applyMaskToLayer',
+  'removeMaskFromSelectedLayer'
 ]);
 module.exports = LayerActions;

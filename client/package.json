@@ -10,10 +10,12 @@
   "mainInput": "main",
   "mainOutput": "main",
   "dependencies": {
+    "bootstrap": "^3.3.5",
     "lodash": "^3.10.0",
     "normalize.css": "~3.0.3",
     "react": "https://github.com/IL55/react/raw/0.13-stable/build/react.tgz",
     "react-router": "0.13.x",
+    "react-utils-helper": "^0.1.4",
     "reflux": "^0.2.7"
   },
   "devDependencies": {

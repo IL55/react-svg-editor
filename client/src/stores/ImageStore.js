@@ -26,7 +26,7 @@ var ImageStore = Reflux.createStore({
       this.listenTo(LayerActions.moveDownSelectedLayer, this.onMoveDownSelectedLayer);
       this.listenTo(LayerActions.createMaskFromSelectedLayer, this.onCreateMaskFromSelectedLayer);
       this.listenTo(LayerActions.applyMaskToLayer, this.onApplyMaskToLayer);
-
+      this.listenTo(LayerActions.removeMaskFromSelectedLayer, this.removeMaskFromSelectedLayer);
 
       this.listenTo(ObjectActions.addNewObjectToLayer, this.onAddNewObjectToLayer);
       this.listenTo(ObjectActions.updateObjectAttributes, this.onUpdateObjectAttributes);
@@ -270,6 +270,20 @@ var ImageStore = Reflux.createStore({
     }
 
     layer.maskAdded = mask.name;
+
+    // push masks
+    this.trigger(this.svgImage);
+  },
+
+  removeMaskFromSelectedLayer: function(layerId) {
+    // find layer
+    var layer = _.find(this.svgImage.svgLayers, {name: layerId});
+    if (!layer) {
+      // no any layer found
+      return;
+    }
+
+    layer.maskAdded = null;
 
     // push masks
     this.trigger(this.svgImage);

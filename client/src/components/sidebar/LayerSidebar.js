@@ -23,6 +23,10 @@ var LayerSidebar = React.createClass({
     LayerActions.unPreSelectLayer(this.props.svgLayer.name);
   },
 
+  removeMask: function() {
+    LayerActions.removeMaskFromSelectedLayer(this.props.svgLayer.name);
+  },
+
   render: function() {
     var eyeImg;
     if (this.props.svgLayer.visible) {
@@ -36,12 +40,24 @@ var LayerSidebar = React.createClass({
       selectedClass += ' SelectedLayer';
     }
 
+
+
     return <tr className={selectedClass} onMouseOver={this.preSelectlayer} onMouseLeave={this.unPreSelectlayer}>
               <td onClick={this.changeLayerVisibility}>
-                <img src={eyeImg} className='eye-icon'/>
+                <img src={eyeImg} className='eye-icon' title="Layer visibility, click to change" />
               </td>
               <td onClick={this.selectLayer}>
-                {this.props.svgLayer.name}
+                <span title="Layer name, click to select layer">
+                  <span className="label label-primary">
+                    {this.props.svgLayer.name}
+                  </span>
+                  <span className="badge" title="Number of svg objects">
+                    {this.props.svgLayer.svgObjects.length}
+                  </span>
+                  <span className="badge" title="Mask added to layer, click to remove" onClick={this.removeMask}>
+                    {this.props.svgLayer.maskAdded}
+                  </span>
+                </span>
               </td>
            </tr>;
   }
