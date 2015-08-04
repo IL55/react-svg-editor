@@ -5,6 +5,7 @@ var Reflux = require('reflux');
 var ImageModel = require('./ImageModel');
 var LayerActions = require('actions/LayerActions');
 var ObjectActions = require('actions/ObjectActions');
+var HistoryActions = require('actions/HistoryActions');
 
 
 var ImageStore = Reflux.createStore({
@@ -13,6 +14,7 @@ var ImageStore = Reflux.createStore({
    */
   init: function() {
       this.svgImage = ImageModel;
+      HistoryActions.addToHistory(this.svgImage);
 
       // Register actions
       this.listenTo(LayerActions.changeLayerVisibility, this.onChangeLayerVisibility);
@@ -33,6 +35,8 @@ var ImageStore = Reflux.createStore({
       this.listenTo(ObjectActions.scaleObject, this.changePosition);
       this.listenTo(ObjectActions.rotateObject, this.changePosition);
       this.listenTo(ObjectActions.selectObjectInSelectedLayer, this.onSelectObjectInSelectedLayer);
+
+      this.listenTo(HistoryActions.setHistorySnapshotToSvgImage, this.setHistorySnapshotToSvgImage);
   },
 
   /**
@@ -40,6 +44,16 @@ var ImageStore = Reflux.createStore({
    */
   getImage: function() {
     return this.svgImage;
+  },
+
+  /**
+   * set svg image model (form history snapshots)
+   */
+  setHistorySnapshotToSvgImage: function(svgImage) {
+    this.svgImage = svgImage;
+
+    // Pass on to listeners
+    this.trigger(this.svgImage);
   },
 
   /**
@@ -76,6 +90,7 @@ var ImageStore = Reflux.createStore({
 
     this.svgImage = this.svgImage.set('selectedObjectId', null);
 
+    HistoryActions.addToHistory(this.svgImage);
     // Pass on to listeners
     this.trigger(this.svgImage);
   },
@@ -115,6 +130,7 @@ var ImageStore = Reflux.createStore({
     // remove object selection (due to in could be stay on other layer)
     this.svgImage = this.svgImage.set('selectedObjectId', null);
 
+    HistoryActions.addToHistory(this.svgImage);
     // Pass on to listeners
     this.trigger(this.svgImage);
   },
@@ -215,6 +231,7 @@ var ImageStore = Reflux.createStore({
     // remove object selection (due to in could be stay on other layer)
     this.svgImage = this.svgImage.set('selectedObjectId', null);
 
+    HistoryActions.addToHistory(this.svgImage);
     // Pass on to listeners
     this.trigger(this.svgImage);
   },
@@ -230,6 +247,7 @@ var ImageStore = Reflux.createStore({
     var newLayers = this.svgImage.get('svgLayers').push(newLayer);
     this.svgImage = this.svgImage.set('svgLayers', newLayers);
 
+    HistoryActions.addToHistory(this.svgImage);
     this.trigger(this.svgImage);
   },
 
@@ -256,6 +274,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex - 1, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     this.trigger(this.svgImage);
   },
 
@@ -284,6 +303,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex + 1, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     this.trigger(this.svgImage);
   },
 
@@ -318,6 +338,7 @@ var ImageStore = Reflux.createStore({
     }
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     this.trigger(this.svgImage);
   },
 
@@ -349,6 +370,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     // push masks
     this.trigger(this.svgImage);
   },
@@ -370,6 +392,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     // push masks
     this.trigger(this.svgImage);
   },
@@ -400,6 +423,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     // fire update notification
     this.trigger(this.svgImage);
   },
@@ -429,6 +453,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     // fire update notification
     this.trigger(this.svgImage);
   },
@@ -459,6 +484,7 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
+    HistoryActions.addToHistory(this.svgImage);
     // fire update notification
     this.trigger(this.svgImage);
   },
@@ -485,6 +511,7 @@ var ImageStore = Reflux.createStore({
 
     this.svgImage = this.svgImage.set('selectedObjectId', objectID);
 
+    HistoryActions.addToHistory(this.svgImage);
     // fire update notification
     this.trigger(this.svgImage);
   }

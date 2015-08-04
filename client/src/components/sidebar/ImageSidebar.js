@@ -3,6 +3,7 @@ var React = require('react');
 var ObjectSidebar = require('./ObjectSidebar');
 var LayersSidebar = require('./LayersSidebar');
 var ObjectActions = require('actions/ObjectActions');
+var HistorySidebar = require('./HistorySidebar');
 
 
 var ImageSidebar = React.createClass({
@@ -35,6 +36,7 @@ var ImageSidebar = React.createClass({
 
     return <div className='image-sidebar'>
               <h1>SVG Image Editor</h1>
+              <HistorySidebar />
               <LayersSidebar layers={layers} selectedLayer={selectedLayer} />
               <div className={layerOperationClass}>
                 <div>
