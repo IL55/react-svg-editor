@@ -29,9 +29,9 @@ var ImageStore = Reflux.createStore({
 
       this.listenTo(ObjectActions.addNewObjectToLayer, this.onAddNewObjectToLayer);
       this.listenTo(ObjectActions.updateObjectAttributes, this.onUpdateObjectAttributes);
-      this.listenTo(ObjectActions.moveObject, this.onMoveObject);
-      this.listenTo(ObjectActions.scaleObject, this.onScaleObject);
-      this.listenTo(ObjectActions.rotateObject, this.onRotateObject);
+      this.listenTo(ObjectActions.moveObject, this.changePosition);
+      this.listenTo(ObjectActions.scaleObject, this.changePosition);
+      this.listenTo(ObjectActions.rotateObject, this.changePosition);
       this.listenTo(ObjectActions.selectObjectInSelectedLayer, this.onSelectObjectInSelectedLayer);
   },
 
@@ -56,21 +56,25 @@ var ImageStore = Reflux.createStore({
   onChangeLayerVisibility: function(layerId) {
     // find layer and invert visible property
     var layers = this.svgImage.get('svgLayers');
-    var layer = layers.find(function(l) {
-      return l.name === layerId;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerId;
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
-    if (layer.visible) {
-      layer.visible = false;
+    if (layer.get('visible')) {
+      layer = layer.set('visible', false);
     } else {
-      layer.visible = true;
+      layer = layer.set('visible', true);
     }
 
-    this.svgImage = this.svgImage.set('selectedObject', null);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
+
+    this.svgImage = this.svgImage.set('selectedObjectId', null);
 
     // Pass on to listeners
     this.trigger(this.svgImage);
@@ -83,26 +87,33 @@ var ImageStore = Reflux.createStore({
   onSelectLayer: function(layerId) {
     // find layer and select it
     var layers = this.svgImage.get('svgLayers');
-    var layer = layers.find(function(l) {
-      return l.name === layerId;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerId;
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
     // unselect previous layer
-    var previousSelectedlayer = layers.find(function(l) {
-      return l.selected;
+    var previousSelectedlayerIndex = layers.findIndex(function(l) {
+      return l.get('selected');
     });
-    if (previousSelectedlayer) {
-      previousSelectedlayer.selected = false;
+
+    if (previousSelectedlayerIndex !== -1) {
+      var previousSelectedlayer = layers.get(previousSelectedlayerIndex);
+      previousSelectedlayer = previousSelectedlayer.set('selected', false);
+      layers = layers.set(previousSelectedlayerIndex, previousSelectedlayer);
+      this.svgImage = this.svgImage.set('svgLayers', layers);
     }
 
-    layer.selected = true;
+    layer = layer.set('selected', true);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // remove object selection (due to in could be stay on other layer)
-    this.svgImage = this.svgImage.set('selectedObject', null);
+    this.svgImage = this.svgImage.set('selectedObjectId', null);
 
     // Pass on to listeners
     this.trigger(this.svgImage);
@@ -116,24 +127,30 @@ var ImageStore = Reflux.createStore({
   onPreSelectLayer: function(layerId) {
     // find layer and pre-select it
     var layers = this.svgImage.get('svgLayers');
-    var layer = layers.find(function(l) {
-      return l.name === layerId;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerId;
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
-    // un-pre-select previous pre-selected layer
-    var previousSelectedlayer = layers.find(function(l) {
-      return l.preSelected;
+    // unselect previous layer
+    var previousSelectedlayerIndex = layers.findIndex(function(l) {
+      return l.get('preSelected');
     });
 
-    if (previousSelectedlayer) {
-      previousSelectedlayer.preSelected = false;
+    if (previousSelectedlayerIndex !== -1) {
+      var previousSelectedlayer = layers.get(previousSelectedlayerIndex);
+      previousSelectedlayer = previousSelectedlayer.set('preSelected', false);
+      layers = layers.set(previousSelectedlayerIndex, previousSelectedlayer);
+      this.svgImage = this.svgImage.set('preSelected', layers);
     }
 
-    layer.preSelected = true;
+    layer = layer.set('preSelected', true);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // Pass on to listeners
     this.trigger(this.svgImage);
@@ -146,15 +163,18 @@ var ImageStore = Reflux.createStore({
   onUnPreSelectLayer: function(layerId) {
     // find layer and un-pre-select it
     var layers = this.svgImage.get('svgLayers');
-    var layer = layers.find(function(l) {
-      return l.name === layerId;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerId;
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
-    layer.preSelected = false;
+    layer = layer.set('preSelected', false);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // Pass on to listeners
     this.trigger(this.svgImage);
@@ -166,30 +186,34 @@ var ImageStore = Reflux.createStore({
   onDeleteSelectedLayer: function() {
     // find layer
     var layers = this.svgImage.get('svgLayers');
-    var layer = layers.find(function(l) {
-      return l.selected;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('selected');
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
-    var filteredLayers = layers.filter(function(layerIt) {
-      return (layerIt.selected !== true);
-    });
-
-    this.svgImage = this.svgImage.set('svgLayers', filteredLayers);
+    layers = layers.delete(layerIndex);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // if it is mask we should remove references from other layers
-    if (layer.mask) {
-      var refs = this.svgImage.get('svgLayers').filter(function(layerIt) {
-        return (layerIt.maskAdded === layer.name);
+    if (layer.get('mask')) {
+      var svgImg = this.svgImage;
+      layers.forEach(function(layerIt, i) {
+        if (layerIt.get('maskAdded') === layer.get('name')) {
+          var newLayer = layerIt.delete('maskAdded');
+          layers = layers.set(i, newLayer);
+          svgImg = svgImg.set('svgLayers', layers);
+        }
       });
 
-      refs.forEach(function(layerIt) {
-        delete layerIt.maskAdded;
-      });
+      this.svgImage = svgImg;
     }
+
+    // remove object selection (due to in could be stay on other layer)
+    this.svgImage = this.svgImage.set('selectedObjectId', null);
 
     // Pass on to listeners
     this.trigger(this.svgImage);
@@ -216,7 +240,7 @@ var ImageStore = Reflux.createStore({
     // find layer
     var layers = this.svgImage.get('svgLayers');
     var layerIndex = layers.findIndex(function(l) {
-      return l.selected;
+      return l.get('selected');
     });
     if (layerIndex <= 0) {
       return;
@@ -242,7 +266,7 @@ var ImageStore = Reflux.createStore({
     // find layer
     var layers = this.svgImage.get('svgLayers');
     var layerIndex = layers.findIndex(function(l) {
-      return l.selected;
+      return l.get('selected');
     });
     if ((layerIndex === -1) ||
         (layerIndex === layers.size - 1)) {
@@ -270,7 +294,7 @@ var ImageStore = Reflux.createStore({
     // find layer
     var layers = this.svgImage.get('svgLayers');
     var layer = layers.find(function(l) {
-      return l.selected;
+      return l.get('selected');
     });
     if (!layer) {
       // no any layer found
@@ -282,18 +306,17 @@ var ImageStore = Reflux.createStore({
 
     // try to find if mask with same name exists already
     var theSameNameMaskIndex = layers.findIndex(function(l) {
-      return l.name === mask.name;
+      return l.get('name') === mask.get('name');
     });
 
-    var newLayers;
     if (theSameNameMaskIndex === -1) {
       // push masks
-      newLayers = layers.push(mask);
+      layers = layers.push(mask);
     } else {
       // update mask
-      newLayers = layers.set(theSameNameMaskIndex, mask);
+      layers = layers.set(theSameNameMaskIndex, mask);
     }
-    this.svgImage = this.svgImage.set('svgLayers', newLayers);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     this.trigger(this.svgImage);
   },
@@ -305,7 +328,7 @@ var ImageStore = Reflux.createStore({
     // find layer
     var layers = this.svgImage.get('svgLayers');
     var mask = layers.find(function(l) {
-      return l.mask && l.selected;
+      return l.get('mask') && l.get('selected');
     });
     if (!mask) {
       // no any layer found
@@ -313,15 +336,18 @@ var ImageStore = Reflux.createStore({
     }
 
     // find layer
-    var layer = layers.find(function(l) {
-      return l.name === layerId;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerId;
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
-    layer.maskAdded = mask.name;
+    layer = layer.set('maskAdded', mask.get('name'));
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // push masks
     this.trigger(this.svgImage);
@@ -330,15 +356,19 @@ var ImageStore = Reflux.createStore({
   removeMaskFromSelectedLayer: function(layerId) {
     // find layer
     var layers = this.svgImage.get('svgLayers');
-    var layer = layers.find(function(l) {
-      return l.name === layerId;
+    // find layer
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerId;
     });
-    if (!layer) {
+    if (layerIndex === -1) {
       // no any layer found
       return;
     }
+    var layer = layers.get(layerIndex);
 
-    layer.maskAdded = null;
+    layer = layer.set('maskAdded', null);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // push masks
     this.trigger(this.svgImage);
@@ -351,18 +381,24 @@ var ImageStore = Reflux.createStore({
   onAddNewObjectToLayer: function(objectType) {
     // find selected layer
     var layers = this.svgImage.get('svgLayers');
-    var selectedlayer = layers.find(function(l) {
-      return l.selected;
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('selected');
     });
-    if (!selectedlayer) {
+    if (layerIndex === -1) {
       // can't add anything
       return;
     }
+    var layer = layers.get(layerIndex);
+
     // create new object
     var svgObject = ImageModel.get('emptyObjectOfType')(objectType);
 
     // add to layer
-    selectedlayer.svgObjects.push(svgObject);
+    var svgObjects = layer.get('svgObjects').push(svgObject);
+
+    layer = layer.set('svgObjects', svgObjects);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // fire update notification
     this.trigger(this.svgImage);
@@ -373,10 +409,25 @@ var ImageStore = Reflux.createStore({
    * @param  {object} svgObject object
    * @param  {Array} attrs     list of attributes
    */
-  onUpdateObjectAttributes: function(svgObject, attrs) {
-    for (var k in attrs) {
-      svgObject[k] = attrs[k];
+  onUpdateObjectAttributes: function(layerID, objectID, attrs) {
+    // find selected layer
+    var layers = this.svgImage.get('svgLayers');
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerID;
+    });
+    if (layerIndex === -1) {
+      return;
     }
+    var layer = layers.get(layerIndex);
+    var svgObjects = layer.get('svgObjects');
+    var svgObject = svgObjects.get(objectID);
+
+    svgObject = svgObject.merge(attrs);
+
+    svgObjects = svgObjects.set(objectID, svgObject);
+    layer = layer.set('svgObjects', svgObjects);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // fire update notification
     this.trigger(this.svgImage);
@@ -386,31 +437,27 @@ var ImageStore = Reflux.createStore({
    * move object to new position
    * @param  {object} svgObject object
    */
-  onMoveObject: function(svgObject, newPosition) {
-    svgObject.position.x = newPosition.x;
-    svgObject.position.y = newPosition.y;
+  changePosition: function(layerID, objectID, newPosition) {
+    // find selected layer
+    var layers = this.svgImage.get('svgLayers');
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('name') === layerID;
+    });
+    if (layerIndex === -1) {
+      return;
+    }
+    var layer = layers.get(layerIndex);
+    var svgObjects = layer.get('svgObjects');
+    var svgObject = svgObjects.get(objectID);
+    var pos = svgObject.get('position');
 
-    // fire update notification
-    this.trigger(this.svgImage);
-  },
+    pos = pos.merge(newPosition);
 
-  /**
-   * re-scale object (set new scale)
-   * @param  {object} svgObject object
-   */
-  onScaleObject: function(svgObject, newPosition) {
-    svgObject.position.scale = newPosition.scale;
-
-    // fire update notification
-    this.trigger(this.svgImage);
-  },
-
-  /**
-   * rotate object to new angle
-   * @param  {object} svgObject object
-   */
-  onRotateObject: function(svgObject, newPosition) {
-    svgObject.position.r = newPosition.r;
+    svgObject = svgObject.set('position', pos);
+    svgObjects = svgObjects.set(objectID, svgObject);
+    layer = layer.set('svgObjects', svgObjects);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // fire update notification
     this.trigger(this.svgImage);
@@ -424,19 +471,19 @@ var ImageStore = Reflux.createStore({
   onSelectObjectInSelectedLayer: function(layerID, objectID) {
     // find selected layer
     var layers = this.svgImage.get('svgLayers');
-    var selectedlayer = layers.find(function(l) {
-      return l.selected;
+    var layer = layers.find(function(l) {
+      return l.get('selected');
     });
-    if (!selectedlayer) {
+    if (!layer) {
       return;
     }
 
-    if (selectedlayer.name !== layerID) {
+    if (layer.get('name') !== layerID) {
       // can't select object on the other layer
       return;
     }
 
-    this.svgImage = this.svgImage.set('selectedObject', selectedlayer.svgObjects[objectID]);
+    this.svgImage = this.svgImage.set('selectedObjectId', objectID);
 
     // fire update notification
     this.trigger(this.svgImage);

@@ -9,13 +9,15 @@ var RectObjectSidebar = require('./RectObjectSidebar');
 var ObjectSidebar = React.createClass({
 
   render: function() {
+    //var selectedObjectId = this.props.selectedObjectId;
     var svgObject = this.props.svgObject;
+
     var svgObjectControls = EmptyObjectSidebar;
-    if (svgObject && svgObject.type) {
-      if (svgObject.type === 'text') {
-        svgObjectControls = <TextObjectSidebar svgObject={svgObject} />;
+    if (svgObject && svgObject.get('type')) {
+      if (svgObject.get('type') === 'text') {
+        svgObjectControls = <TextObjectSidebar svgObject={svgObject} objectId={this.props.objectId} layerId={this.props.layerId}/>;
       } else {
-        svgObjectControls = <RectObjectSidebar svgObject={svgObject} />;
+        svgObjectControls = <RectObjectSidebar svgObject={svgObject} objectId={this.props.objectId} layerId={this.props.layerId}/>;
       }
     }
     return <div className='svg-object-controls'>{svgObjectControls}</div>;

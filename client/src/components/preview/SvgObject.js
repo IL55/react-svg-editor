@@ -10,15 +10,17 @@ var SvgObject = React.createClass({
   render: function() {
     var svgObject = this.props.svgObject;
     var child;
-    if (svgObject.type === 'text') {
-      child = <text x='0' y='0' textAnchor='middle'>{svgObject.text}</text>;
+    if (svgObject.get('type') === 'text') {
+      child = <text x='0' y='0' textAnchor='middle'>{svgObject.get('text')}</text>;
     } else {
-      var pos = svgObject.position;
-      var style = { fill: svgObject.fill || 'transparent' };
-      child = <rect className={svgObject.className} style={style} x={-pos.width / 2} y={-pos.height / 2} width={pos.width} height={pos.height}></rect>;
+      var pos = svgObject.get('position');
+      var style = { fill: svgObject.get('fill') || 'transparent' };
+      var width = pos.get('width');
+      var height = pos.get('height');
+      child = <rect className={svgObject.className} style={style} x={-width / 2} y={-height / 2} width={width} height={height}></rect>;
     }
 
-    return <g transform={h.transformFor(svgObject.position)} onMouseDown={this.handleMouseDown}>
+    return <g transform={h.transformFor(svgObject.get('position'))} onMouseDown={this.handleMouseDown}>
           {child}
         </g>;
   }

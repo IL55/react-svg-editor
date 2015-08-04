@@ -36,7 +36,7 @@ var LayersSidebar = React.createClass({
       layerOperationClass = 'hide';
     } else {
       layerOperationClass = 'show';
-      if (selectedLayer.mask) {
+      if (selectedLayer.get('mask')) {
         createMaskClass = 'hide';
         applyMaskClass = 'show';
       } else {
@@ -96,9 +96,9 @@ var LayersSidebar = React.createClass({
                     <select onChange={this.applyMask}>
                       {
                         svgLayers.filter(function(l) {
-                          return !l.mask;
+                          return !l.get('mask');
                         }).map(function(l, i) {
-                          return <option value={l.name} key={i}>{l.name}</option>;
+                          return <option value={l.get('name')} key={i}>{l.get('name')}</option>;
                         })
                       }
                     </select>

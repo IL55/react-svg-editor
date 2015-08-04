@@ -1,17 +1,17 @@
 'use strict';
 
-var transformFor = function(options) {
-  var r = '';
-  if(options.x || options.y) {
-    r += 'translate(' + (options.x) + ',' + (options.y) + ') ';
+var transformFor = function(position) {
+  var str = '';
+  if(position.get('x') || position.get('y')) {
+    str += 'translate(' + (position.get('x')) + ',' + (position.get('y')) + ') ';
   }
-  if(options.r) {
-    r += 'rotate(' + options.r + ',0,0) ';
+  if(position.get('r')) {
+    str += 'rotate(' + position.get('r') + ',0,0) ';
   }
-  if(options.scale){
-    r += 'scale(' + options.scale + ') ';
+  if(position.get('scale')){
+    str += 'scale(' + position.get('scale') + ') ';
   }
-  return r;
+  return str;
 };
 
 exports.transformFor = transformFor;

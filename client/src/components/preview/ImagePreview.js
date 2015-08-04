@@ -50,16 +50,27 @@ var ImagePreview = React.createClass({
     var svgLayersOriginal = image.get('svgLayers');
 
     var svgLayers = svgLayersOriginal.filter(function(l){
-      return !l.mask;
+      return !l.get('mask');
     }).map(function(l, i) {
       return <SvgLayer svgLayer={l} key={i}></SvgLayer>;
     });
 
     var svgMasks = svgLayersOriginal.filter(function(l){
-      return (l.mask === true);
+      return l.get('mask');
     }).map(function(l, i) {
       return <SvgMask svgMask={l} key={i}></SvgMask>;
     });
+
+    var svgObject;
+    var layerId;
+    var layer = svgLayersOriginal.find(function(l) {
+      return l.get('selected');
+    });
+    if (layer &&
+      (this.props.selectedObjectId !== null)) {
+      layerId = layer.get('name');
+      svgObject = layer.get('svgObjects').get(this.props.selectedObjectId);
+    }
 
     return <div className='image-preview'>
           <svg ref='svg' className={dragging ? 'dragging' : 'not-dragging'}
@@ -76,7 +87,7 @@ var ImagePreview = React.createClass({
             {svgLayers}
 
             {/* control svgObjects */}
-            <ControlObject svgObject={this.props.selectedObject}
+            <ControlObject svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId}
               handleDrag={this.handleDrag} />
           </svg>
         </div>;

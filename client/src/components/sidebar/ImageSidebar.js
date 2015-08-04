@@ -7,7 +7,7 @@ var ObjectActions = require('actions/ObjectActions');
 
 var ImageSidebar = React.createClass({
   addTextObject: function() {
-      ObjectActions.addNewObjectToLayer('text');
+    ObjectActions.addNewObjectToLayer('text');
   },
   addRectObject: function() {
     ObjectActions.addNewObjectToLayer('rect');
@@ -15,14 +15,22 @@ var ImageSidebar = React.createClass({
   render: function() {
     var layers = this.props.image.get('svgLayers');
     var selectedLayer = layers.find(function(l) {
-      return l.selected;
+      return l.get('selected');
     });
     var layerOperationClass;
     if (!selectedLayer ||
-        (selectedLayer && selectedLayer.mask)) {
+        (selectedLayer && selectedLayer.get('mask'))) {
       layerOperationClass = 'hide';
     } else {
       layerOperationClass = 'show';
+    }
+
+    var svgObject;
+    var layerId;
+    if (selectedLayer &&
+      (this.props.selectedObjectId !== null)) {
+      svgObject = selectedLayer.get('svgObjects').get(this.props.selectedObjectId);
+      layerId = selectedLayer.get('name');
     }
 
     return <div className='image-sidebar'>
@@ -44,7 +52,7 @@ var ImageSidebar = React.createClass({
                   </button>
                 </div>
               </div>
-              <ObjectSidebar svgObject={this.props.svgObject} />
+              <ObjectSidebar svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId} />
             </div>;
   }
 });

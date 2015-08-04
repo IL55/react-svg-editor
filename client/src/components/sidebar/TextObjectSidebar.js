@@ -4,12 +4,12 @@ var ObjectActions = require('actions/ObjectActions');
 
 var TextObjectSidebar = React.createClass({
   handleChange: function(e) {
-    ObjectActions.updateObjectAttributes(this.props.svgObject, {text: e.target.value});
+    ObjectActions.updateObjectAttributes(this.props.layerId, this.props.objectId, {text: e.target.value});
   },
   render: function() {
     return <dl>
               <dt>Text</dt>
-              <dd><input onChange={this.handleChange} value={this.props.svgObject.text}/></dd>
+              <dd><input onChange={this.handleChange} value={this.props.svgObject.get('text')}/></dd>
            </dl>;
   }
 });

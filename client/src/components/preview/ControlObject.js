@@ -21,9 +21,9 @@ var ControlObject = React.createClass({
   handleMouseMove: function(e) {
     var svgObject = this.props.svgObject;
 
-    ObjectActions.moveObject(svgObject, {
-      x: svgObject.position.x + e.pageX - this.state.lastMouseX,
-      y: svgObject.position.y + e.pageY - this.state.lastMouseY
+    ObjectActions.moveObject(this.props.layerId, this.props.objectId, {
+      x: svgObject.get('position').get('x') + e.pageX - this.state.lastMouseX,
+      y: svgObject.get('position').get('y') + e.pageY - this.state.lastMouseY
     });
 
     this.setState({ lastMouseX: e.pageX, lastMouseY: e.pageY });
@@ -34,13 +34,13 @@ var ControlObject = React.createClass({
   },
   handleResizeMove: function(e) {
     var svgObject = this.props.svgObject;
-    var pos = svgObject.position;
+    var pos = svgObject.get('position');
 
-    var z0 = Math.sqrt(Math.pow(pos.width / 2, 2) + Math.pow(pos.height / 2, 2));
+    var z0 = Math.sqrt(Math.pow(pos.get('width') / 2, 2) + Math.pow(pos.get('height') / 2, 2));
     var z1 = Math.sqrt(Math.pow(e.svgObjectX, 2) + Math.pow(e.svgObjectY, 2));
 
-    ObjectActions.scaleObject(svgObject, {
-      scale: (pos.scale || 1) * z1 / z0
+    ObjectActions.scaleObject(this.props.layerId, this.props.objectId, {
+      scale: (pos.get('scale') || 1) * z1 / z0
     });
   },
   handleResizeEnd: function() {
@@ -52,10 +52,10 @@ var ControlObject = React.createClass({
     }
 
     var svgObject = this.props.svgObject;
-    var pos = svgObject.position;
+    var pos = svgObject.get('position');
 
-    var width = svgObject.position.width;
-    var height = svgObject.position.height;
+    var width = pos.get('width');
+    var height = pos.get('height');
 
     var controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
 
@@ -64,13 +64,15 @@ var ControlObject = React.createClass({
       return <ControlPoint x={location[0]} y={location[1]} onMouseDown={self.handleResizeStart} key={i} />;
     });
 
-    return <g ref='container' transform={h.transformFor(svgObject.position)} onMouseDown={self.handleMouseDown}>
-          <rect className='halo' x={-pos.width / 2} y={-pos.height / 2} width={pos.width} height={pos.height}></rect>
+    return <g ref='container' transform={h.transformFor(pos)} onMouseDown={self.handleMouseDown}>
+          <rect className='halo' x={-width / 2} y={-height / 2} width={width} height={height}></rect>
 
           {controlPoints}
 
           <RotationControl
             svgObject={svgObject}
+            layerId={this.props.layerId}
+            objectId={this.props.objectId}
             handleDrag={this.props.handleDrag} />
          </g>;
   }

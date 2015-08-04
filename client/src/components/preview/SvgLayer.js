@@ -9,26 +9,27 @@ var SvgLayer = React.createClass({
     var svgLayer = this.props.svgLayer;
 
     var svgLayerClass = 'SvgLayer';
-    if (svgLayer.visible) {
+    if (svgLayer.get('visible')) {
       svgLayerClass += ' showLayer';
     } else {
       svgLayerClass += ' hideLayer';
     }
 
-    if (svgLayer.preSelected) {
+    if (svgLayer.get('preSelected')) {
       svgLayerClass += ' preSelected';
     }
 
     // add mask attribute if existed
     var maskAdded = '';
-    if (svgLayer.maskAdded) {
-      maskAdded = 'url(#' + svgLayer.maskAdded + ')';
+    if (svgLayer.get('maskAdded')) {
+      maskAdded = 'url(#' + svgLayer.get('maskAdded') + ')';
     }
 
+    var svgObjects = svgLayer.get('svgObjects');
     return <g className={svgLayerClass} mask={maskAdded}>
             {
-              svgLayer.svgObjects.map(function(l, i) {
-                return <SvgObject svgObject={l} key={i} layerID={svgLayer.name} objectID={i}></SvgObject>;
+              svgObjects.map(function(l, i) {
+                return <SvgObject svgObject={l} key={i} layerID={svgLayer.get('name')} objectID={i}></SvgObject>;
               })
             }
           </g>;

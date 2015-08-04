@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var Immutable = require('immutable');
 
 var initialImage = Immutable.Map({
@@ -21,7 +20,7 @@ var initialImage = Immutable.Map({
    * @type {Object}
    */
   svgLayers: Immutable.List([
-    {
+    Immutable.Map({
       /**
        * name of layer (and it's id)
        * @type {string}
@@ -36,35 +35,35 @@ var initialImage = Immutable.Map({
        * list of svg object belongs to layer
        * @type {list}
        */
-      svgObjects: [
-        { type: 'rect', position: { scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }, fill: 'green' }
-      ]
-    },
-    {
+      svgObjects: Immutable.List([
+        Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' })
+      ])
+    }),
+    Immutable.Map({
       name: 'Layer2',
       visible: true,
       maskAdded: 'Layer3mask',
-      svgObjects: [
-        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'blue' }
-      ]
-    },
-    {
+      svgObjects: Immutable.List([
+         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'blue' })
+      ])
+    }),
+    Immutable.Map({
       name: 'Layer3',
       visible: false,
-      svgObjects: [
-        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
-        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' }
-      ]
-    },
-    {
+      svgObjects: Immutable.List([
+         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'white' }),
+         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }), fill: 'black' })
+      ])
+    }),
+    Immutable.Map({
       name: 'Layer3mask',
       visible: true,
       mask: true,
-      svgObjects: [
-        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
-        { type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' }
-      ]
-    }
+      svgObjects: Immutable.List([
+         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'white' }),
+         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }), fill: 'black' })
+      ])
+    })
   ]),
   /**
    * create empty svg object specified type
@@ -72,12 +71,12 @@ var initialImage = Immutable.Map({
    * @return {object} new svg object
    */
   emptyObjectOfType: function(type) {
-    var svgObject = { type: type, position: { x: 100, y: 30, r: 0, width: 100, height: 50 } };
+    var svgObject = Immutable.Map({ type: type, position: Immutable.Map({ x: 100, y: 30, r: 0, width: 100, height: 50 }) });
     if (type === 'rect') {
-      svgObject.fill = 'red';
+      svgObject = svgObject.set('fill', 'red');
     }
     if (type === 'text') {
-      svgObject.text = 'Text';
+      svgObject = svgObject.set('text', 'Text');
     }
 
     return svgObject;
@@ -88,11 +87,11 @@ var initialImage = Immutable.Map({
    * @return {object} new layer (group of svg objects)
    */
   emptyLayer: function(name) {
-    return {
+    return Immutable.Map({
       name: name,
       visible: true,
-      svgObjects: []
-    };
+      svgObjects: Immutable.List([])
+    });
   },
   /**
    * create mask
@@ -100,10 +99,10 @@ var initialImage = Immutable.Map({
    * @return {object} new layer (group of svg objects)
    */
   createMask: function(layer) {
-    var mask = _.clone(layer, true);
-    mask.selected = false;
-    mask.name += 'mask';
-    mask.mask = true;
+    var mask = layer;
+    mask = mask.set('selected', false);
+    mask = mask.set('name', mask.get('name') + 'mask');
+    mask = mask.set('mask', true);
     return mask;
   }
 

@@ -8,38 +8,40 @@ var closedEyeImg = require('../../images/eye_closed.png');
 
 var LayerSidebar = React.createClass({
   changeLayerVisibility: function() {
-    LayerActions.changeLayerVisibility(this.props.svgLayer.name);
+    LayerActions.changeLayerVisibility(this.props.svgLayer.get('name'));
   },
 
   selectLayer: function() {
-    LayerActions.selectLayer(this.props.svgLayer.name);
+    LayerActions.selectLayer(this.props.svgLayer.get('name'));
   },
 
   preSelectlayer: function() {
-    LayerActions.preSelectLayer(this.props.svgLayer.name);
+    LayerActions.preSelectLayer(this.props.svgLayer.get('name'));
   },
 
   unPreSelectlayer: function() {
-    LayerActions.unPreSelectLayer(this.props.svgLayer.name);
+    LayerActions.unPreSelectLayer(this.props.svgLayer.get('name'));
   },
 
   removeMask: function() {
-    LayerActions.removeMaskFromSelectedLayer(this.props.svgLayer.name);
+    LayerActions.removeMaskFromSelectedLayer(this.props.svgLayer.get('name'));
   },
 
   render: function() {
     var eyeImg;
-    if (this.props.svgLayer.visible ||
-        this.props.svgLayer.mask) { // mask always visible
+    if (this.props.svgLayer.get('visible') ||
+        this.props.svgLayer.get('mask')) { // mask always visible
       eyeImg = openEyeImg;
     } else {
       eyeImg = closedEyeImg;
     }
 
     var selectedClass = 'LayerSidebar';
-    if (this.props.svgLayer.selected) {
+    if (this.props.svgLayer.get('selected')) {
       selectedClass += ' SelectedLayer';
     }
+
+    var svgObjects = this.props.svgLayer.get('svgObjects');
 
     return <tr className={selectedClass} onMouseOver={this.preSelectlayer} onMouseLeave={this.unPreSelectlayer}>
               <td onClick={this.changeLayerVisibility}>
@@ -48,13 +50,13 @@ var LayerSidebar = React.createClass({
               <td onClick={this.selectLayer}>
                 <span title="Layer name, click to select layer">
                   <span className="label label-primary">
-                    {this.props.svgLayer.name}
+                    {this.props.svgLayer.get('name')}
                   </span>
                   <span className="badge" title="Number of svg objects">
-                    {this.props.svgLayer.svgObjects.length}
+                    {svgObjects.size}
                   </span>
                   <span className="badge" title="Mask added to layer, click to remove" onClick={this.removeMask}>
-                    {this.props.svgLayer.maskAdded}
+                    {this.props.svgLayer.get('maskAdded')}
                   </span>
                 </span>
               </td>
