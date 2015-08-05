@@ -54,8 +54,10 @@ var ImageSidebar = React.createClass({
                   </button>
                 </div>
               </div>
+              <div className={layerOperationClass}>
+                <PhotosSidebar />
+              </div>
               <ObjectSidebar svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId} />
-              <PhotosSidebar />
             </div>;
   }
 });

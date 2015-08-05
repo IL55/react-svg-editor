@@ -36,7 +36,8 @@ var initialImage = Immutable.Map({
        * @type {list}
        */
       svgObjects: Immutable.List([
-        Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' })
+        Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' }),
+        Immutable.Map({ type: 'photo', position: Immutable.Map({ scale: 1, x: 340, y: 100, r: 10, width: 50, height: 50 }), src: 'images/photos/schoolgirl.jpg'})
       ])
     }),
     Immutable.Map({
@@ -70,13 +71,17 @@ var initialImage = Immutable.Map({
    * @param  {string} type  - of the object (text/rect)
    * @return {object} new svg object
    */
-  emptyObjectOfType: function(type) {
+  emptyObjectOfType: function(type, attrs) {
     var svgObject = Immutable.Map({ type: type, position: Immutable.Map({ x: 100, y: 30, r: 0, width: 100, height: 50 }) });
     if (type === 'rect') {
       svgObject = svgObject.set('fill', 'red');
     }
     if (type === 'text') {
       svgObject = svgObject.set('text', 'Text');
+    }
+
+    if (attrs) {
+      svgObject = svgObject.merge(attrs);
     }
 
     return svgObject;

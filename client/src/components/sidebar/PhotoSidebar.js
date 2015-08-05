@@ -12,7 +12,7 @@ var PropTypes = React.PropTypes;
 var cardSource = {
   beginDrag: function (props) {
     return {
-      id: props.photo.get('id')
+      photo: props.photo
     };
   },
   endDrag: function (props, monitor) {
@@ -21,11 +21,11 @@ var cardSource = {
     }
 
     // When dropped on a compatible target, do something
-    var item = monitor.getItem();
+    var photo = monitor.getItem().photo;
 
     // get coordinates
-    var dropResult = monitor.getDropResult();
-    ObjectActions.addNewObjectToLayer('rect', item.id, dropResult.listId);
+    //var dropResult = monitor.getDropResult();
+    ObjectActions.addNewObjectToLayer('photo', { src: photo.get('fullsizeImage') });
   }
 };
 

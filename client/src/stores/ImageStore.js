@@ -29,7 +29,7 @@ var ImageStore = Reflux.createStore({
       this.listenTo(LayerActions.applyMaskToLayer, this.onApplyMaskToLayer);
       this.listenTo(LayerActions.removeMaskFromSelectedLayer, this.removeMaskFromSelectedLayer);
 
-      this.listenTo(ObjectActions.addNewObjectToLayer, this.onAddNewObjectToLayer);
+      this.listenTo(ObjectActions.addNewObjectToLayer, this.addNewObjectToLayer);
       this.listenTo(ObjectActions.updateObjectAttributes, this.onUpdateObjectAttributes);
       this.listenTo(ObjectActions.moveObject, this.changePosition);
       this.listenTo(ObjectActions.scaleObject, this.changePosition);
@@ -401,7 +401,7 @@ var ImageStore = Reflux.createStore({
    * add new object to selected layer
    * @param  {string} objectType new object type (tect/rect)
    */
-  onAddNewObjectToLayer: function(objectType) {
+  addNewObjectToLayer: function(objectType, attrs) {
     // find selected layer
     var layers = this.svgImage.get('svgLayers');
     var layerIndex = layers.findIndex(function(l) {
@@ -414,7 +414,7 @@ var ImageStore = Reflux.createStore({
     var layer = layers.get(layerIndex);
 
     // create new object
-    var svgObject = ImageModel.get('emptyObjectOfType')(objectType);
+    var svgObject = ImageModel.get('emptyObjectOfType')(objectType, attrs);
 
     // add to layer
     var svgObjects = layer.get('svgObjects').push(svgObject);
