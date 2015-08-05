@@ -6,6 +6,21 @@ var ControlObject = require('./ControlObject');
 var SvgLayer = require('./SvgLayer');
 var SvgMask = require('./SvgMask');
 
+var DropTarget = require('react-dnd').DropTarget;
+
+var svgImageTarget = {
+  drop: function () {
+    return { moved: true };
+  }
+};
+
+function collect(connect) {
+  return {
+    connectDropTarget: connect.dropTarget()
+  };
+}
+
+
 var ImagePreview = React.createClass({
   getInitialState: function() {
     return { dragging: false };
@@ -72,7 +87,9 @@ var ImagePreview = React.createClass({
       svgObject = layer.get('svgObjects').get(this.props.selectedObjectId);
     }
 
-    return <div className='image-preview'>
+    var connectDropTarget = this.props.connectDropTarget;
+
+    return connectDropTarget(<div className='image-preview'>
           <svg ref='svg' className={dragging ? 'dragging' : 'not-dragging'}
               height={image.get('height')} width={image.get('width')}
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
@@ -90,8 +107,8 @@ var ImagePreview = React.createClass({
             <ControlObject svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId}
               handleDrag={this.handleDrag} />
           </svg>
-        </div>;
+        </div>);
   }
 });
 
-module.exports = ImagePreview;
+module.exports = DropTarget('PhotoSidebar', svgImageTarget, collect)(ImagePreview);

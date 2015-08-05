@@ -4,6 +4,9 @@ var React = require('react');
 
 var ImagePreview = require('./preview/ImagePreview');
 var ImageSidebar = require('./sidebar/ImageSidebar');
+var DragDropContext = require('react-dnd').DragDropContext;
+var HTML5Backend = require('react-dnd/modules/backends/HTML5');
+
 
 var ImageEditor = React.createClass({
 
@@ -17,4 +20,4 @@ var ImageEditor = React.createClass({
   }
 });
 
-module.exports = ImageEditor;
+module.exports = DragDropContext(HTML5Backend)(ImageEditor);

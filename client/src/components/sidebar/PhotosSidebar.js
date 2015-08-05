@@ -5,6 +5,7 @@ require('styles/PhotosSidebar.less');
 var PhotosStore = require('stores/PhotosStore');
 var PhotoSidebar = require('./PhotoSidebar');
 
+
 var PhotosSidebar = React.createClass({
   getInitialState: function() {
     return {photosStore: PhotosStore.getPhotosStore()};
