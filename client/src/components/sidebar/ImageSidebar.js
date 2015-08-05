@@ -4,7 +4,7 @@ var ObjectSidebar = require('./ObjectSidebar');
 var LayersSidebar = require('./LayersSidebar');
 var ObjectActions = require('actions/ObjectActions');
 var HistorySidebar = require('./HistorySidebar');
-
+var PhotosSidebar = require('./PhotosSidebar');
 
 var ImageSidebar = React.createClass({
   addTextObject: function() {
@@ -55,6 +55,7 @@ var ImageSidebar = React.createClass({
                 </div>
               </div>
               <ObjectSidebar svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId} />
+              <PhotosSidebar />
             </div>;
   }
 });
