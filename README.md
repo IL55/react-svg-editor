@@ -1,15 +1,18 @@
-[![Circle CI](https://circleci.com/gh/IL55/edit-svg-layers/tree/master.svg?style=shield)](https://circleci.com/gh/IL55/edit-svg-layers/tree/master)
+[![Circle CI](https://circleci.com/gh/IL55/react-svg-editor/tree/master.svg?style=svg)](https://circleci.com/gh/IL55/react-svg-editor/tree/master)
 
 # edit-svg-layers
 
 This project was inspired by project [react-svg-editor](https://github.com/asolove/react-svg-editor).
 
 Client produce svg images, you can edit layers.
+Svg image presented as [Immutable.js](https://facebook.github.io/immutable-js) object (no problem with "back" button).
+
+For unidirectional dataflow [ReFlux.js](https://github.com/reflux/refluxjs) used.
 
 Online build available here:
 http://edit-svg-layers.herokuapp.com
 
-This project is generated with [yo react-webpack generator ](https://github.com/newtriks/generator-react-webpack)
+This project is generated with [yo react-webpack generator](https://github.com/newtriks/generator-react-webpack)
 
 ## Build & development
 
