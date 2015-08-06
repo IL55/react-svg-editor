@@ -9,8 +9,9 @@ var SvgMask = require('./SvgMask');
 var DropTarget = require('react-dnd').DropTarget;
 
 var svgImageTarget = {
-  drop: function () {
-    return { moved: true };
+  drop: function (props, monitor, component) {
+    var componentRectTarget = component.getDOMNode().getBoundingClientRect();
+    return { componentRectTarget: componentRectTarget };
   }
 };
 
@@ -89,8 +90,7 @@ var ImagePreview = React.createClass({
 
     var connectDropTarget = this.props.connectDropTarget;
 
-    return connectDropTarget(<div className='image-preview'>
-          <svg ref='svg' className={dragging ? 'dragging' : 'not-dragging'}
+    return connectDropTarget(<div><svg ref='svg' className={dragging ? 'dragging' : 'not-dragging'}
               height={image.get('height')} width={image.get('width')}
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
               onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
@@ -106,8 +106,7 @@ var ImagePreview = React.createClass({
             {/* control svgObjects */}
             <ControlObject svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId}
               handleDrag={this.handleDrag} />
-          </svg>
-        </div>);
+          </svg></div>);
   }
 });
 

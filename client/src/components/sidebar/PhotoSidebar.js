@@ -15,7 +15,7 @@ var cardSource = {
       photo: props.photo
     };
   },
-  endDrag: function (props, monitor) {
+  endDrag: function (props, monitor, component) {
     if (!monitor.didDrop()) {
       return;
     }
@@ -24,8 +24,24 @@ var cardSource = {
     var photo = monitor.getItem().photo;
 
     // get coordinates
-    //var dropResult = monitor.getDropResult();
-    ObjectActions.addNewObjectToLayer('photo', { src: photo.get('fullsizeImage') });
+    // get target rect
+    var dropResult = monitor.getDropResult();
+    var componentRectTarget = dropResult.componentRectTarget;
+
+    // get client rect
+    var componentRect = component.getDOMNode().getBoundingClientRect();
+    ObjectActions.addNewObjectToLayer('photo', {
+      src: photo.get('fullsizeImage'),
+      position: {
+        // move according target(top left)
+        x: component.props.clientOffset.x - componentRectTarget.left,
+        y: component.props.clientOffset.y - componentRectTarget.top,
+        width: componentRect.width,
+        height: componentRect.height,
+        r: 0,
+        scale: 1
+      }
+    });
   }
 };
 
@@ -35,7 +51,9 @@ var cardSource = {
 function collect(connect, monitor) {
   return {
     connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
+    isDragging: monitor.isDragging(),
+    sourceClientOffset: monitor.getSourceClientOffset(),
+    clientOffset: monitor.getClientOffset()
   };
 }
 

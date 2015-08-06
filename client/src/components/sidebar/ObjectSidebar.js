@@ -16,7 +16,8 @@ var ObjectSidebar = React.createClass({
     if (svgObject && svgObject.get('type')) {
       if (svgObject.get('type') === 'text') {
         svgObjectControls = <TextObjectSidebar svgObject={svgObject} objectId={this.props.objectId} layerId={this.props.layerId}/>;
-      } else {
+      }
+      if (svgObject.get('type') === 'rect'){
         svgObjectControls = <RectObjectSidebar svgObject={svgObject} objectId={this.props.objectId} layerId={this.props.layerId}/>;
       }
     }
