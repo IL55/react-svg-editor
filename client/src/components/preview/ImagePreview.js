@@ -37,7 +37,7 @@ var ImagePreview = React.createClass({
       return null;
     }
 
-    var screenPoint = this.refs.svg.getDOMNode().createSVGPoint();
+    var screenPoint = this.getDOMNode().createSVGPoint();
     screenPoint.x = e.pageX;
     screenPoint.y = e.pageY;
     var screenToObject = this.svgObject.getDOMNode().getScreenCTM().inverse();
@@ -90,7 +90,7 @@ var ImagePreview = React.createClass({
 
     var connectDropTarget = this.props.connectDropTarget;
 
-    return connectDropTarget(<div><svg ref='svg' className={dragging ? 'dragging' : 'not-dragging'}
+    return connectDropTarget(<svg className={dragging ? 'dragging' : 'not-dragging'}
               height={image.get('height')} width={image.get('width')}
               onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
               onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
@@ -106,7 +106,7 @@ var ImagePreview = React.createClass({
             {/* control svgObjects */}
             <ControlObject svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId}
               handleDrag={this.handleDrag} />
-          </svg></div>);
+          </svg>);
   }
 });
 
