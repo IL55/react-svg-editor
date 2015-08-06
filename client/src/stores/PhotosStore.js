@@ -2,7 +2,6 @@
 
 var Reflux = require('reflux');
 var Immutable = require('immutable');
-//var HistoryActions = require('actions/HistoryActions');
 
 var PhotosStore = Reflux.createStore({
   /**
@@ -13,23 +12,23 @@ var PhotosStore = Reflux.createStore({
         photosList: [
           {
             photoId: 1,
-            fullsizeImage: 'images/photos/chibi.jpg',
-            thumbnail: 'images/photos/chibi_thumb.jpg'
+            fullsizeImage: require('../images/photos/chibi.jpg'),
+            thumbnail: require('../images/photos/chibi_thumb.jpg')
           },
           {
             photoId: 2,
-            fullsizeImage: 'images/photos/guy.jpg',
-            thumbnail: 'images/photos/guy_thumb.jpg'
+            fullsizeImage: require('../images/photos/guy.jpg'),
+            thumbnail: require('../images/photos/guy_thumb.jpg')
           },
           {
             photoId: 3,
-            fullsizeImage: 'images/photos/mugen.jpg',
-            thumbnail: 'images/photos/mugen_thumb.jpg'
+            fullsizeImage: require('../images/photos/mugen.jpg'),
+            thumbnail: require('../images/photos/mugen_thumb.jpg')
           },
           {
             photoId: 4,
-            fullsizeImage: 'images/photos/schoolgirl.jpg',
-            thumbnail: 'images/photos/schoolgirl_thumb.jpg'
+            fullsizeImage: require('../images/photos/schoolgirl.jpg'),
+            thumbnail: require('../images/photos/schoolgirl_thumb.jpg')
           }
         ]
       });

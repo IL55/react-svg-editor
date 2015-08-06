@@ -37,7 +37,7 @@ var initialImage = Immutable.Map({
        */
       svgObjects: Immutable.List([
         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' }),
-        Immutable.Map({ type: 'photo', position: Immutable.Map({ scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }), src: 'images/photos/schoolgirl.jpg'})
+        Immutable.Map({ type: 'photo', position: Immutable.Map({ scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }), src: require('../images/photos/schoolgirl.jpg')})
       ])
     }),
     Immutable.Map({
