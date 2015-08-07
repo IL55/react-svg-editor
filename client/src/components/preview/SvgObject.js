@@ -3,13 +3,17 @@
 var React = require('react');
 var h = require('./svg-helpers');
 var ObjectActions = require('actions/ObjectActions');
+var ImageStore = require('stores/ImageStore');
 
 var SvgObject = React.createClass({
   handleMouseDown: function() {
     ObjectActions.selectObjectInSelectedLayer(this.props.layerID, this.props.objectID, this.props.svgObject);
   },
   render: function() {
-    var svgObject = this.props.svgObject;
+    var svgObject = ImageStore.getObjectById(this.props.objectID);
+    if (!svgObject) {
+      return <g></g>;
+    }
     var child;
     var type = svgObject.get('type');
     var pos = svgObject.get('position');

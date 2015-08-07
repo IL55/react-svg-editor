@@ -9,8 +9,8 @@ var SvgMask = React.createClass({
 
     return <mask id={svgLayer.get('name')}>
             {
-              svgLayer.get('svgObjects').map(function(l, i) {
-                return <SvgObject svgObject={l} key={i} layerID={svgLayer.get('name')} objectID={i}></SvgObject>;
+              svgLayer.get('svgObjects').map(function(objectID, i) {
+                return <SvgObject key={i} layerID={svgLayer.get('name')} objectID={objectID}></SvgObject>;
               })
             }
           </mask>;

@@ -28,8 +28,8 @@ var SvgLayer = React.createClass({
     var svgObjects = svgLayer.get('svgObjects');
     return <g className={svgLayerClass} mask={maskAdded}>
             {
-              svgObjects.map(function(l, i) {
-                return <SvgObject svgObject={l} key={i} layerID={svgLayer.get('name')} objectID={i}></SvgObject>;
+              svgObjects.map(function(objectID, i) {
+                return <SvgObject key={i} layerID={svgLayer.get('name')} objectID={objectID}></SvgObject>;
               })
             }
           </g>;

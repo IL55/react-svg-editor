@@ -4,7 +4,7 @@ var ObjectActions = require('actions/ObjectActions');
 
 var RectObjectSidebar = React.createClass({
   handleChange: function(e) {
-    ObjectActions.updateObjectAttributes(this.props.layerId, this.props.objectId, {fill: e.target.value});
+    ObjectActions.updateObjectAttributes(this.props.layerID, this.props.objectID, {fill: e.target.value});
   },
   render: function() {
     return <dl>

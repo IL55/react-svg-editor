@@ -4,7 +4,7 @@ var ObjectActions = require('actions/ObjectActions');
 
 var TextObjectSidebar = React.createClass({
   handleChange: function(e) {
-    ObjectActions.updateObjectAttributes(this.props.layerId, this.props.objectId, {text: e.target.value});
+    ObjectActions.updateObjectAttributes(this.props.layerID, this.props.objectID, {text: e.target.value});
   },
   render: function() {
     return <dl>

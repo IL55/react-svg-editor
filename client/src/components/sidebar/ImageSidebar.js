@@ -26,12 +26,10 @@ var ImageSidebar = React.createClass({
       layerOperationClass = 'show';
     }
 
-    var svgObject;
-    var layerId;
+    var layerID;
     if (selectedLayer &&
       (this.props.selectedObjectId !== null)) {
-      svgObject = selectedLayer.get('svgObjects').get(this.props.selectedObjectId);
-      layerId = selectedLayer.get('name');
+      layerID = selectedLayer.get('name');
     }
 
     return <div className='image-sidebar'>
@@ -57,7 +55,7 @@ var ImageSidebar = React.createClass({
               <div className={layerOperationClass}>
                 <PhotosSidebar />
               </div>
-              <ObjectSidebar svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId} />
+              <ObjectSidebar selectedObjectId={this.props.selectedObjectId} layerID={layerID} />
             </div>;
   }
 });

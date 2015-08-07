@@ -5,6 +5,7 @@ var React = require('react');
 var ControlObject = require('./ControlObject');
 var SvgLayer = require('./SvgLayer');
 var SvgMask = require('./SvgMask');
+var ImageStore = require('stores/ImageStore');
 
 var DropTarget = require('react-dnd').DropTarget;
 
@@ -78,14 +79,14 @@ var ImagePreview = React.createClass({
     });
 
     var svgObject;
-    var layerId;
+    var layerID;
     var layer = svgLayersOriginal.find(function(l) {
       return l.get('selected');
     });
     if (layer &&
       (this.props.selectedObjectId !== null)) {
-      layerId = layer.get('name');
-      svgObject = layer.get('svgObjects').get(this.props.selectedObjectId);
+      layerID = layer.get('name');
+      svgObject = ImageStore.getObjectById(this.props.selectedObjectId);
     }
 
     var connectDropTarget = this.props.connectDropTarget;
@@ -104,7 +105,7 @@ var ImagePreview = React.createClass({
             {svgLayers}
 
             {/* control svgObjects */}
-            <ControlObject svgObject={svgObject} objectId={this.props.selectedObjectId} layerId={layerId}
+            <ControlObject svgObject={svgObject} objectID={this.props.selectedObjectId} layerID={layerID}
               handleDrag={this.handleDrag} />
           </svg>);
   }

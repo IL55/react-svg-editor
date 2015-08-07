@@ -15,7 +15,7 @@ var RotationControl = React.createClass({
     var pos = this.props.svgObject.get('position');
     var dr = Math.atan2(e.svgObjectY, e.svgObjectX) * 360 / 2 / Math.PI + 90;
 
-    ObjectActions.rotateObject(this.props.layerId, this.props.objectId, { r: pos.get('r') + dr });
+    ObjectActions.rotateObject(this.props.layerID, this.props.objectID, { r: pos.get('r') + dr });
   },
 
   handleDragEnd: function() {

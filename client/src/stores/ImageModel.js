@@ -19,6 +19,18 @@ var initialImage = Immutable.Map({
    * SVG layers, each layer is a group of svg objects (rectangles or texts)
    * @type {Object}
    */
+  svgObjects: Immutable.List([
+    Immutable.Map({ id: 'rect1', type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' }),
+    Immutable.Map({ id: 'photo1', type: 'photo', position: Immutable.Map({ scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }), src: require('../images/photos/schoolgirl.jpg')}),
+    Immutable.Map({ id: 'rect2', type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'blue' }),
+    Immutable.Map({ id: 'rect3', type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'white' }),
+    Immutable.Map({ id: 'rect4', type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }), fill: 'black' })
+  ]),
+
+  /**
+   * SVG layers, each layer is a group of svg objects (rectangles or texts)
+   * @type {Object}
+   */
   svgLayers: Immutable.List([
     Immutable.Map({
       /**
@@ -35,35 +47,24 @@ var initialImage = Immutable.Map({
        * list of svg object belongs to layer
        * @type {list}
        */
-      svgObjects: Immutable.List([
-        Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' }),
-        Immutable.Map({ type: 'photo', position: Immutable.Map({ scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }), src: require('../images/photos/schoolgirl.jpg')})
-      ])
+      svgObjects: Immutable.List([ 'rect1', 'photo1'])
     }),
     Immutable.Map({
       name: 'Layer2',
       visible: true,
       maskAdded: 'Layer3mask',
-      svgObjects: Immutable.List([
-         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'blue' })
-      ])
+      svgObjects: Immutable.List(['rect2'])
     }),
     Immutable.Map({
       name: 'Layer3',
       visible: false,
-      svgObjects: Immutable.List([
-         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'white' }),
-         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }), fill: 'black' })
-      ])
+      svgObjects: Immutable.List(['rect3', 'rect4'])
     }),
     Immutable.Map({
       name: 'Layer3mask',
       visible: true,
       mask: true,
-      svgObjects: Immutable.List([
-         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'white' }),
-         Immutable.Map({ type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }), fill: 'black' })
-      ])
+      svgObjects: Immutable.List(['rect3', 'rect4'])
     })
   ]),
   /**

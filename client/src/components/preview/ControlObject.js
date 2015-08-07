@@ -21,7 +21,7 @@ var ControlObject = React.createClass({
   handleMouseMove: function(e) {
     var svgObject = this.props.svgObject;
 
-    ObjectActions.moveObject(this.props.layerId, this.props.objectId, {
+    ObjectActions.moveObject(this.props.layerID, this.props.objectID, {
       x: svgObject.get('position').get('x') + e.pageX - this.state.lastMouseX,
       y: svgObject.get('position').get('y') + e.pageY - this.state.lastMouseY
     });
@@ -39,7 +39,7 @@ var ControlObject = React.createClass({
     var z0 = Math.sqrt(Math.pow(pos.get('width') / 2, 2) + Math.pow(pos.get('height') / 2, 2));
     var z1 = Math.sqrt(Math.pow(e.svgObjectX, 2) + Math.pow(e.svgObjectY, 2));
 
-    ObjectActions.scaleObject(this.props.layerId, this.props.objectId, {
+    ObjectActions.scaleObject(this.props.layerID, this.props.objectID, {
       scale: (pos.get('scale') || 1) * z1 / z0
     });
   },
@@ -71,8 +71,8 @@ var ControlObject = React.createClass({
 
           <RotationControl
             svgObject={svgObject}
-            layerId={this.props.layerId}
-            objectId={this.props.objectId}
+            layerID={this.props.layerID}
+            objectID={this.props.objectID}
             handleDrag={this.props.handleDrag} />
          </g>;
   }
