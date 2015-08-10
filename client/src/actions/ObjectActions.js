@@ -8,6 +8,7 @@ var ObjectActions = Reflux.createActions([
   'moveObject',
   'scaleObject',
   'rotateObject',
-  'selectObjectInSelectedLayer'
+  'selectObjectInSelectedLayer',
+  'removeSelectedObject'
 ]);
 module.exports = ObjectActions;

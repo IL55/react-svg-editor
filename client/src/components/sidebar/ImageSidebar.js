@@ -5,6 +5,7 @@ var selectIcon = require('../../images/select_icon.svg');
 
 var ObjectSidebar = require('./ObjectSidebar');
 var LayersSidebar = require('./LayersSidebar');
+var ObjectActions = require('actions/ObjectActions');
 var EditorActions = require('actions/EditorActions');
 var HistorySidebar = require('./HistorySidebar');
 var PhotosSidebar = require('./PhotosSidebar');
@@ -12,15 +13,23 @@ var EditorStates = require('stores/EditorStates');
 
 
 var ImageSidebar = React.createClass({
+
   selectObjectMode: function() {
     EditorActions.switchToSelectObjectEditMode();
   },
+
   addTextObjectMode: function() {
     EditorActions.switchToAddTextEditMode();
   },
+
   addRectObjectMode: function() {
     EditorActions.switchToAddRectEditMode();
   },
+
+  removeSelectedObject: function() {
+    ObjectActions.removeSelectedObject();
+  },
+
   render: function() {
     var layers = this.props.image.get('svgLayers');
     var selectedLayer = layers.find(function(l) {
@@ -67,6 +76,13 @@ var ImageSidebar = React.createClass({
       break;
     }
 
+    var removeSelectedObjectBtnClass;
+    if (this.props.selectedObjectId) {
+      removeSelectedObjectBtnClass = 'show';
+    } else {
+      removeSelectedObjectBtnClass = 'hide';
+    }
+
     return <div className='ImageSidebar'>
               <h1>SVG Image Editor</h1>
               <HistorySidebar />
@@ -74,6 +90,11 @@ var ImageSidebar = React.createClass({
               <div className={layerOperationClass}>
                 <div>
                   Objects operations
+                </div>
+                <div className={removeSelectedObjectBtnClass}>
+                  <button type="button" className="btn btn-default" onClick={this.removeSelectedObject} title="Remove selected object">
+                    <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                  </button>
                 </div>
                 <div className='add-svg-object'>
                   <div>

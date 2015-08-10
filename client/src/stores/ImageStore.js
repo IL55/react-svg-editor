@@ -36,6 +36,8 @@ var ImageStore = Reflux.createStore({
       this.listenTo(ObjectActions.scaleObject, this.changePosition);
       this.listenTo(ObjectActions.rotateObject, this.changePosition);
       this.listenTo(ObjectActions.selectObjectInSelectedLayer, this.selectObjectInSelectedLayer);
+      this.listenTo(ObjectActions.removeSelectedObject, this.removeSelectedObject);
+
 
       this.listenTo(HistoryActions.setHistorySnapshotToSvgImage, this.setHistorySnapshotToSvgImage);
 
@@ -562,6 +564,42 @@ var ImageStore = Reflux.createStore({
 
     this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
     this.svgImage = this.svgImage.set('selectedObjectId', objectID);
+
+    HistoryActions.addToHistory(this.svgImage);
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * remove selected object from selected layer
+   */
+  removeSelectedObject: function() {
+    // find selected layer
+    var layers = this.svgImage.get('svgLayers');
+    var layerIndex = layers.findIndex(function(l) {
+      return l.get('selected');
+    });
+    if (layerIndex === -1) {
+      return;
+    }
+
+    var selectedObjectId = this.svgImage.get('selectedObjectId');
+    if (!selectedObjectId) {
+      return;
+    }
+
+    var layer = layers.get(layerIndex);
+    var svgObjects = layer.get('svgObjects');
+    svgObjects = svgObjects.filter(function(svgObjectID) {
+      return svgObjectID !== selectedObjectId;
+    });
+
+    layer = layer.set('svgObjects', svgObjects);
+    layers = layers.set(layerIndex, layer);
+    this.svgImage = this.svgImage.set('svgLayers', layers);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
 
     HistoryActions.addToHistory(this.svgImage);
     // fire update notification
