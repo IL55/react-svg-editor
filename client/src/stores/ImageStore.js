@@ -6,7 +6,8 @@ var ImageModel = require('./ImageModel');
 var LayerActions = require('actions/LayerActions');
 var ObjectActions = require('actions/ObjectActions');
 var HistoryActions = require('actions/HistoryActions');
-
+var EditorActions = require('actions/EditorActions');
+var EditorStates = require('./EditorStates');
 
 var ImageStore = Reflux.createStore({
   /**
@@ -37,6 +38,11 @@ var ImageStore = Reflux.createStore({
       this.listenTo(ObjectActions.selectObjectInSelectedLayer, this.selectObjectInSelectedLayer);
 
       this.listenTo(HistoryActions.setHistorySnapshotToSvgImage, this.setHistorySnapshotToSvgImage);
+
+      this.listenTo(EditorActions.switchToAddRectEditMode, this.switchToAddRectEditMode);
+      this.listenTo(EditorActions.startAddRect, this.startAddRect);
+      this.listenTo(EditorActions.continueAddRect, this.continueAddRect);
+      this.listenTo(EditorActions.finishAddRect, this.finishAddRect);
   },
 
   /**
@@ -407,37 +413,47 @@ var ImageStore = Reflux.createStore({
   },
 
   /**
-   * add new object to selected layer
-   * @param  {string} objectType new object type (tect/rect)
+   * helper function: add object to selected layer
+   * @param  {Object} existed svg object
    */
-  addNewObjectToLayer: function(objectType, attrs) {
+  addObjectToLayer: function(image, svgObject) {
     // find selected layer
-    var layers = this.svgImage.get('svgLayers');
+    var layers = image.get('svgLayers');
     var layerIndex = layers.findIndex(function(l) {
       return l.get('selected');
     });
     if (layerIndex === -1) {
       // can't add anything
-      return;
+      return image;
     }
     var layer = layers.get(layerIndex);
 
-    // create new object
-    var svgObject = ImageModel.get('emptyObjectOfType')(objectType, attrs);
     // TODO: rewrite to generate uuid
-    var svgObjects = this.svgImage.get('svgObjects');
-    var svgObjectId = objectType + svgObjects.size;
+    var svgObjects = image.get('svgObjects');
+    var svgObjectId = svgObject.get('type') + svgObjects.size;
     svgObject = svgObject.set('id', svgObjectId);
 
     // add to layer
     svgObjects = svgObjects.push(svgObject);
-    this.svgImage = this.svgImage.set('svgObjects', svgObjects);
+    image = image.set('svgObjects', svgObjects);
 
     var svgObjectsIDs = layer.get('svgObjects').push(svgObjectId);
 
     layer = layer.set('svgObjects', svgObjectsIDs);
     layers = layers.set(layerIndex, layer);
-    this.svgImage = this.svgImage.set('svgLayers', layers);
+    image = image.set('svgLayers', layers);
+
+    return image;
+  },
+
+  /**
+   * add new object to selected layer
+   * @param  {string} objectType new object type (tect/rect)
+   */
+  addNewObjectToLayer: function(objectType, attrs) {
+    // create new object
+    var svgObject = ImageModel.get('emptyObjectOfType')(objectType, attrs);
+    this.svgImage = this.addObjectToLayer(this.svgImage, svgObject);
 
     HistoryActions.addToHistory(this.svgImage);
     // fire update notification
@@ -536,6 +552,78 @@ var ImageStore = Reflux.createStore({
     this.svgImage = this.svgImage.set('selectedObjectId', objectID);
 
     HistoryActions.addToHistory(this.svgImage);
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * switch svg editor to add rect mode
+   */
+  switchToAddRectEditMode: function() {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT);
+    this.svgImage = this.svgImage.set('editStateData', null);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  startAddRect: function(mousePosition) {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT_FIRST_POINT_ADDED);
+    var svgObject = ImageModel.get('emptyObjectOfType')('rect', {
+      position: {
+        scale: 1,
+        r: 0,
+        x: mousePosition.x,
+        y: mousePosition.y,
+        width: 0,
+        height: 0
+      }
+    });
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  continueAddRect: function(mousePosition) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+    var pos = svgObject.get('position');
+    var x = pos.get('x');
+    var y = pos.get('y');
+    pos = pos.set('width', Math.abs(x - mousePosition.x));
+    pos = pos.set('height', Math.abs(y - mousePosition.y));
+    svgObject = svgObject.set('position', pos);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT_SECOND_POINT_ADDED);
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  finishAddRect: function(mousePosition) {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT);
+
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var pos = svgObject.get('position');
+    var x = pos.get('x');
+    var y = pos.get('y');
+    pos = pos.set('width', Math.abs(x - mousePosition.x));
+    pos = pos.set('height', Math.abs(y - mousePosition.y));
+    svgObject = svgObject.set('position', pos);
+
+    this.svgImage = this.addObjectToLayer(this.svgImage, svgObject);
+    this.svgImage = this.svgImage.set('editStateData', null);
+
+    HistoryActions.addToHistory(this.svgImage);
+
     // fire update notification
     this.trigger(this.svgImage);
   }

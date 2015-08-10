@@ -6,8 +6,9 @@ var ControlObject = require('./ControlObject');
 var SvgLayer = require('./SvgLayer');
 var SvgMask = require('./SvgMask');
 var ImageStore = require('stores/ImageStore');
-
 var DropTarget = require('react-dnd').DropTarget;
+var EditorActions = require('actions/EditorActions');
+var EditorStates = require('stores/EditorStates');
 
 var svgImageTarget = {
   drop: function (props, monitor, component) {
@@ -61,6 +62,81 @@ var ImagePreview = React.createClass({
     e.canvasY = e.pageY - 30;
     this.mouseUpHandler.apply(null, arguments);
   },
+
+  onMouseDown: function(e) {
+    var image = this.props.image;
+    var mousePosition = {
+      x: e.pageX - 272,
+      y: e.pageY - 30
+    };
+
+    switch(image.get('editState')) {
+      case EditorStates.ADD_RECT:
+        EditorActions.startAddRect(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+      default:
+      break;
+    }
+  },
+
+  onMouseMove: function(e) {
+
+    // TODO: move dragging state to Editor state machine
+    if (this.state.dragging) {
+      this.handleMouseMove(e);
+      return;
+    }
+
+    var mousePosition = {
+      x: e.pageX - 272,
+      y: e.pageY - 30
+    };
+
+    var image = this.props.image;
+    switch(image.get('editState')) {
+      case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
+      case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
+        EditorActions.continueAddRect(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+      default:
+      break;
+    }
+  },
+
+  onMouseUp: function(e) {
+    // TODO: move dragging state to Editor state machine
+    if (this.state.dragging) {
+      this.handleMouseUp(e);
+      return;
+    }
+
+    var mousePosition = {
+      x: e.pageX - 272,
+      y: e.pageY - 30
+    };
+
+    var image = this.props.image;
+    switch(image.get('editState')) {
+      case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
+      case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
+        EditorActions.finishAddRect(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+      default:
+      break;
+    }
+
+
+  },
+
   render: function() {
     var image = this.props.image;
     var dragging = this.props.dragging;
@@ -91,10 +167,22 @@ var ImagePreview = React.createClass({
 
     var connectDropTarget = this.props.connectDropTarget;
 
+    switch(image.get('editState')) {
+      case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
+      case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
+        svgObject = image.get('editStateData');
+      break;
+      default:
+      break;
+    }
+
+
+
     return connectDropTarget(<svg className={dragging ? 'dragging' : 'not-dragging'}
               height={image.get('height')} width={image.get('width')}
-              onMouseMove={this.state.dragging ? this.handleMouseMove : Function.noop}
-              onMouseUp={this.state.dragging ? this.handleMouseUp : Function.noop}>
+              onMouseDown={this.onMouseDown}
+              onMouseMove={this.onMouseMove}
+              onMouseUp={this.onMouseUp}>
 
             <defs>
               {/* image svgLayers */}

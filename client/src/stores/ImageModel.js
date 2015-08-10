@@ -2,7 +2,9 @@
 
 var Immutable = require('immutable');
 
-var initialImage = Immutable.Map({
+var EditorStates = require('./EditorStates');
+
+var initialImage = Immutable.fromJS({
   /**
    * width of svg image
    * @type {Number}
@@ -16,23 +18,36 @@ var initialImage = Immutable.Map({
   height: 600,
 
   /**
-   * SVG layers, each layer is a group of svg objects (rectangles or texts)
-   * @type {Object}
+   * svg image editing state
+   * @type {Number}
    */
-  svgObjects: Immutable.List([
-    Immutable.Map({ id: 'rect1', type: 'rect', position: Immutable.Map({ scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }), fill: 'green' }),
-    Immutable.Map({ id: 'photo1', type: 'photo', position: Immutable.Map({ scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }), src: require('../images/photos/schoolgirl.jpg')}),
-    Immutable.Map({ id: 'rect2', type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'blue' }),
-    Immutable.Map({ id: 'rect3', type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }), fill: 'white' }),
-    Immutable.Map({ id: 'rect4', type: 'rect', position: Immutable.Map({ scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }), fill: 'black' })
-  ]),
+  editState: EditorStates.SELECT_OBJ,
+
+  /**
+   * svg image editing state data
+   * in some state
+   * @type {Number}
+   */
+  editStateData: null,
 
   /**
    * SVG layers, each layer is a group of svg objects (rectangles or texts)
    * @type {Object}
    */
-  svgLayers: Immutable.List([
-    Immutable.Map({
+  svgObjects: [
+    { id: 'rect1', type: 'rect', position: { scale: 1, x: 200, y: 200, r: 10, width: 220, height: 250 }, fill: 'green' },
+    { id: 'photo1', type: 'photo', position: { scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }, src: require('../images/photos/schoolgirl.jpg') },
+    { id: 'rect2', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'blue' },
+    { id: 'rect3', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
+    { id: 'rect4', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' }
+  ],
+
+  /**
+   * SVG layers, each layer is a group of svg objects (rectangles or texts)
+   * @type {Object}
+   */
+  svgLayers: [
+    {
       /**
        * name of layer (and it's id)
        * @type {string}
@@ -47,33 +62,33 @@ var initialImage = Immutable.Map({
        * list of svg object belongs to layer
        * @type {list}
        */
-      svgObjects: Immutable.List([ 'rect1', 'photo1'])
-    }),
-    Immutable.Map({
+      svgObjects: [ 'rect1', 'photo1']
+    },
+    {
       name: 'Layer2',
       visible: true,
       maskAdded: 'Layer3mask',
-      svgObjects: Immutable.List(['rect2'])
-    }),
-    Immutable.Map({
+      svgObjects: ['rect2']
+    },
+    {
       name: 'Layer3',
       visible: false,
-      svgObjects: Immutable.List(['rect3', 'rect4'])
-    }),
-    Immutable.Map({
+      svgObjects: ['rect3', 'rect4']
+    },
+    {
       name: 'Layer3mask',
       visible: true,
       mask: true,
-      svgObjects: Immutable.List(['rect3', 'rect4'])
-    })
-  ]),
+      svgObjects: ['rect3', 'rect4']
+    }
+  ],
   /**
    * create empty svg object specified type
    * @param  {string} type  - of the object (text/rect)
    * @return {object} new svg object
    */
   emptyObjectOfType: function(type, attrs) {
-    var svgObject = Immutable.Map({ type: type, position: Immutable.Map({ scale: 1, x: 100, y: 30, r: 0, width: 100, height: 50}) });
+    var svgObject = Immutable.fromJS({ type: type, position: { scale: 1, x: 100, y: 30, r: 0, width: 100, height: 50} });
     if (type === 'rect') {
       svgObject = svgObject.set('fill', 'red');
     }
@@ -93,10 +108,10 @@ var initialImage = Immutable.Map({
    * @return {object} new layer (group of svg objects)
    */
   emptyLayer: function(name) {
-    return Immutable.Map({
+    return Immutable.fromJS({
       name: name,
       visible: true,
-      svgObjects: Immutable.List([])
+      svgObjects: []
     });
   },
   /**

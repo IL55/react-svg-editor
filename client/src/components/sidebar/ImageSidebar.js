@@ -3,15 +3,18 @@ var React = require('react');
 var ObjectSidebar = require('./ObjectSidebar');
 var LayersSidebar = require('./LayersSidebar');
 var ObjectActions = require('actions/ObjectActions');
+var EditorActions = require('actions/EditorActions');
 var HistorySidebar = require('./HistorySidebar');
 var PhotosSidebar = require('./PhotosSidebar');
+
 
 var ImageSidebar = React.createClass({
   addTextObject: function() {
     ObjectActions.addNewObjectToLayer('text');
   },
   addRectObject: function() {
-    ObjectActions.addNewObjectToLayer('rect');
+    EditorActions.switchToAddRectEditMode();
+    //ObjectActions.addNewObjectToLayer('rect');
   },
   render: function() {
     var layers = this.props.image.get('svgLayers');
