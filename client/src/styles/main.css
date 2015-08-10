@@ -15,13 +15,6 @@
   font-size: 13px;
 }
 
-.image-sidebar {
-  position: absolute;
-  left: 0; top: 0; bottom: 0; width: 240px;
-  border-right: 1px solid #ccc;
-  background-color: white;
-}
-
 h1 {
   font-size: 130%;
   margin: 0px;

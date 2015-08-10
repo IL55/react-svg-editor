@@ -16,5 +16,6 @@ export default keyMirror({
   SELECT_OBJ: null,
   ADD_RECT: null,
   ADD_RECT_FIRST_POINT_ADDED: null,
-  ADD_RECT_SECOND_POINT_ADDED: null
+  ADD_RECT_SECOND_POINT_ADDED: null,
+  ADD_TEXT: null
 });

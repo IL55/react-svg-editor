@@ -43,6 +43,9 @@ var ImageStore = Reflux.createStore({
       this.listenTo(EditorActions.startAddRect, this.startAddRect);
       this.listenTo(EditorActions.continueAddRect, this.continueAddRect);
       this.listenTo(EditorActions.finishAddRect, this.finishAddRect);
+      this.listenTo(EditorActions.switchToAddTextEditMode, this.switchToAddTextEditMode);
+      this.listenTo(EditorActions.addNewTextToPosition, this.addNewTextToPosition);
+      this.listenTo(EditorActions.switchToSelectObjectEditMode, this.switchToSelectObjectEditMode);
   },
 
   /**
@@ -103,11 +106,19 @@ var ImageStore = Reflux.createStore({
     layers = layers.set(layerIndex, layer);
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
-    this.svgImage = this.svgImage.set('selectedObjectId', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
 
     HistoryActions.addToHistory(this.svgImage);
     // Pass on to listeners
     this.trigger(this.svgImage);
+  },
+
+  /**
+   * helper function for clear selected object
+   */
+  clearSelectedObject: function(image) {
+    image = image.set('selectedObjectId', null);
+    return image;
   },
 
   /**
@@ -143,7 +154,7 @@ var ImageStore = Reflux.createStore({
     this.svgImage = this.svgImage.set('svgLayers', layers);
 
     // remove object selection (due to in could be stay on other layer)
-    this.svgImage = this.svgImage.set('selectedObjectId', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
 
     HistoryActions.addToHistory(this.svgImage);
     // Pass on to listeners
@@ -244,7 +255,7 @@ var ImageStore = Reflux.createStore({
     }
 
     // remove object selection (due to in could be stay on other layer)
-    this.svgImage = this.svgImage.set('selectedObjectId', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
 
     HistoryActions.addToHistory(this.svgImage);
     // Pass on to listeners
@@ -549,6 +560,7 @@ var ImageStore = Reflux.createStore({
       return;
     }
 
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
     this.svgImage = this.svgImage.set('selectedObjectId', objectID);
 
     HistoryActions.addToHistory(this.svgImage);
@@ -562,11 +574,17 @@ var ImageStore = Reflux.createStore({
   switchToAddRectEditMode: function() {
     this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT);
     this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
 
     // fire update notification
     this.trigger(this.svgImage);
   },
 
+  /**
+   * start add rect, i.e. user click on svg edit area
+   * and setup first point of rectangle
+   * @param  {object} mousePosition - point (in svg coordinates) where user clicked
+   */
   startAddRect: function(mousePosition) {
     this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT_FIRST_POINT_ADDED);
     var svgObject = ImageModel.get('emptyObjectOfType')('rect', {
@@ -585,6 +603,10 @@ var ImageStore = Reflux.createStore({
     this.trigger(this.svgImage);
   },
 
+  /**
+   * continue add rect, i.e. user resize rectangle, which he wants to add
+   * @param  {object} mousePosition - point (in svg coordinates) where user moved
+   */
   continueAddRect: function(mousePosition) {
     var svgObject = this.svgImage.get('editStateData');
     if (!svgObject) {
@@ -604,6 +626,10 @@ var ImageStore = Reflux.createStore({
     this.trigger(this.svgImage);
   },
 
+  /**
+   * finish add rect, i.e. user chosen size of rectangle
+   * @param  {object} mousePosition - point (in svg coordinates) where user finished editing
+   */
   finishAddRect: function(mousePosition) {
     this.svgImage = this.svgImage.set('editState', EditorStates.ADD_RECT);
 
@@ -623,6 +649,52 @@ var ImageStore = Reflux.createStore({
     this.svgImage = this.svgImage.set('editStateData', null);
 
     HistoryActions.addToHistory(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * switch svg editor to add text mode
+   */
+  switchToAddTextEditMode: function() {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_TEXT);
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * switch svg editor to add text mode
+   */
+  addNewTextToPosition: function(mousePosition) {
+    var svgObject = ImageModel.get('emptyObjectOfType')('text', {
+      position: {
+        scale: 1,
+        r: 0,
+        x: mousePosition.x,
+        y: mousePosition.y,
+        width: 100,
+        height: 50
+      }
+    });
+    this.svgImage = this.addObjectToLayer(this.svgImage, svgObject);
+
+    HistoryActions.addToHistory(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * switch svg editor to add text mode
+   */
+  switchToSelectObjectEditMode: function() {
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
 
     // fire update notification
     this.trigger(this.svgImage);

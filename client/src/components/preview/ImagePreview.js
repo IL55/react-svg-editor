@@ -77,6 +77,14 @@ var ImagePreview = React.createClass({
         e.preventDefault();
         e.stopPropagation();
       break;
+
+      case EditorStates.ADD_TEXT:
+        EditorActions.addNewTextToPosition(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+
       default:
       break;
     }
@@ -175,8 +183,6 @@ var ImagePreview = React.createClass({
       default:
       break;
     }
-
-
 
     return connectDropTarget(<svg className={dragging ? 'dragging' : 'not-dragging'}
               height={image.get('height')} width={image.get('width')}
