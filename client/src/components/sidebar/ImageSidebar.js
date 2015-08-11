@@ -35,6 +35,10 @@ var ImageSidebar = React.createClass({
     EditorActions.switchToAddPolygonEditMode();
   },
 
+  saveObject: function() {
+    EditorActions.finishAddPolygon();
+  },
+
   render: function() {
     var layers = this.props.image.get('svgLayers');
     var selectedLayer = layers.find(function(l) {
@@ -94,6 +98,13 @@ var ImageSidebar = React.createClass({
       removeSelectedObjectBtnClass = 'hide';
     }
 
+    var cancelSaveObjectOperationClass;
+    if (editState !== EditorStates.SELECT_OBJ) {
+      cancelSaveObjectOperationClass = 'show';
+    } else {
+      cancelSaveObjectOperationClass = 'hide';
+    }
+
     return <div className='ImageSidebar'>
               <h1>SVG Image Editor</h1>
               <HistorySidebar />
@@ -105,6 +116,14 @@ var ImageSidebar = React.createClass({
                 <div className={removeSelectedObjectBtnClass}>
                   <button type="button" className="btn btn-default" onClick={this.removeSelectedObject} title="Remove selected object">
                     <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                  </button>
+                </div>
+                <div className={cancelSaveObjectOperationClass}>
+                  <button type="button" className='btn btn-default' onClick={this.saveObject} title="Finish edit">
+                    Save Object
+                  </button>
+                  <button type="button" className='btn btn-default' onClick={this.selectObjectMode} title="Cancel edit">
+                    Cancel
                   </button>
                 </div>
                 <div className='add-svg-object'>

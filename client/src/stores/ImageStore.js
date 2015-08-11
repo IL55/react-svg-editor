@@ -809,8 +809,15 @@ var ImageStore = Reflux.createStore({
       y: mousePosition.y - y
     };
 
+    if ((Math.abs(fromStart.x) + Math.abs(fromStart.y)) < 10) {
+      // if user wants to finish path fire finish action instead edit
+      EditorActions.finishAddPolygon();
+      return;
+    }
+
     var polygon = svgObject.get('polygon');
     polygon = polygon.push(Immutable.Map({x: fromStart.x, y: fromStart.y}));
+
     svgObject = svgObject.set('polygon', polygon);
 
     this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON_NEXT_POINT_ADDED);
@@ -818,11 +825,6 @@ var ImageStore = Reflux.createStore({
 
     // fire update notification
     this.trigger(this.svgImage);
-
-    if ((Math.abs(fromStart.x) + Math.abs(fromStart.y)) < 10) {
-      // if user wants to finish path
-      EditorActions.finishAddPolygon();
-    }
   },
 
   /**
@@ -864,7 +866,6 @@ var ImageStore = Reflux.createStore({
 
     var polygon = svgObject.get('polygon');
     polygon = polygon.pop(); // remove selection point (the point is not added to path)
-    polygon = polygon.pop(); // remove last point, because it is near first point
 
     var comparerX = function(point) { return point.get('x'); };
     var comparerY = function(point) { return point.get('y'); };

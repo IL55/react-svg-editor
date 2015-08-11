@@ -205,6 +205,16 @@ var ImagePreview = React.createClass({
           e.stopPropagation();
         }
       break;
+
+      case EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED:
+      case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
+        if (e.keyCode === KEYS.enter) {
+          EditorActions.finishAddPolygon();
+
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      break;
     }
 
     // escape means stop edit anything go to selection mode
