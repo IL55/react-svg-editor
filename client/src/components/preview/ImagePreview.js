@@ -114,7 +114,14 @@ var ImagePreview = React.createClass({
         e.stopPropagation();
       break;
 
-      case EditorStates.ADD_POLYGON_FIRST_POINT_ADDED:
+      case EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED:
+        EditorActions.continueAddPolygon(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+
+      case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
         EditorActions.continueAddPolygon(mousePosition);
 
         e.preventDefault();
@@ -144,6 +151,14 @@ var ImagePreview = React.createClass({
       case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
       case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
         EditorActions.continueAddRect(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+
+      case EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED:
+      case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
+        EditorActions.changePositionForLastPolygonPoint(mousePosition);
 
         e.preventDefault();
         e.stopPropagation();
@@ -231,9 +246,14 @@ var ImagePreview = React.createClass({
 
     var connectDropTarget = this.props.connectDropTarget;
 
-    switch(image.get('editState')) {
+    var editState = image.get('editState');
+    switch(editState) {
       case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
       case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
+        svgObject = image.get('editStateData');
+      break;
+      case EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED:
+      case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
         svgObject = image.get('editStateData');
       break;
       default:
@@ -255,7 +275,7 @@ var ImagePreview = React.createClass({
             {svgLayers}
 
             {/* control svgObjects */}
-            <ControlObject svgObject={svgObject} objectID={this.props.selectedObjectId} layerID={layerID}
+            <ControlObject editState={editState} svgObject={svgObject} objectID={this.props.selectedObjectId} layerID={layerID}
               handleDrag={this.handleDrag} />
           </svg>);
   }

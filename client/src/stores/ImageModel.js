@@ -41,8 +41,8 @@ var initialImage = Immutable.fromJS({
     { id: 'rect3', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
     { id: 'rect4', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' },
     { id: 'polygon1', type: 'polygon',
-        position: { scale: 1, x: 500, y: 300, r: 0, width: 180, height: 150 }, fill: 'magenta',
-        polygon: [{x: 0, y: 0}, {x: 40, y: 0}, {x: 150, y: 80}, {x: 170, y: 100}, {x: 180, y: 150}, {x: 50, y: 100}]
+        position: { scale: 1, x: 500, y: 300, r: -15, width: 148, height: 114 }, fill: 'magenta',
+        polygon: [{x: -16, y: -55}, {x: 42, y: -57}, {x: 74, y: -26}, {x: 44, y: 42}, {x: -27, y: 57}, {x: -74, y: -12}]
     }
   ],
 
@@ -96,8 +96,13 @@ var initialImage = Immutable.fromJS({
     if (type === 'rect') {
       svgObject = svgObject.set('fill', 'red');
     }
+
     if (type === 'text') {
       svgObject = svgObject.set('text', 'Text');
+    }
+
+    if (type === 'polygon') {
+      svgObject = svgObject.set('fill', 'magenta');
     }
 
     if (attrs) {

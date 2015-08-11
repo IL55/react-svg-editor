@@ -5,6 +5,8 @@ var ControlPoint = require('./ControlPoint');
 var RotationControl = require('./RotationControl');
 var h = require('./svg-helpers');
 var ObjectActions = require('actions/ObjectActions');
+var EditorStates = require('stores/EditorStates');
+var ControlPath = require('./ControlPath');
 
 var ControlObject = React.createClass({
   getInitialState: function() {
@@ -51,13 +53,53 @@ var ControlObject = React.createClass({
       return <g></g>;
     }
 
+    var editPolygon = false;
+    switch(this.props.editState) {
+      case EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED:
+      case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
+        editPolygon = true;
+      break;
+    }
+
     var svgObject = this.props.svgObject;
     var pos = svgObject.get('position');
 
     var width = pos.get('width');
     var height = pos.get('height');
 
-    var controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
+    var controlPath;
+
+    var controlPointLocations;
+    switch(svgObject.get('type')) {
+      case 'rect':
+      case 'text':
+        controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
+      break;
+
+      case 'polygon':
+        if (!editPolygon) {
+          controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
+        } else {
+          controlPointLocations = [];
+        }
+
+        controlPath = <ControlPath polygon={svgObject.get('polygon')} editState={this.props.editState} />;
+      break;
+    }
+
+    var haloRect;
+    if (!editPolygon) {
+      haloRect = <rect className='halo' x={-width / 2} y={-height / 2} width={width} height={height}></rect>;
+    }
+
+    var rotationControl;
+    if (!editPolygon) {
+      rotationControl = <RotationControl
+              svgObject={svgObject}
+              layerID={this.props.layerID}
+              objectID={this.props.objectID}
+              handleDrag={this.props.handleDrag} />;
+    }
 
     var self = this;
     var controlPoints = controlPointLocations.map(function(location, i){
@@ -65,16 +107,14 @@ var ControlObject = React.createClass({
     });
 
     return <g ref='container' transform={h.transformFor(pos)} onMouseDown={self.handleMouseDown}>
-          <rect className='halo' x={-width / 2} y={-height / 2} width={width} height={height}></rect>
+            {haloRect}
 
-          {controlPoints}
+            {controlPoints}
 
-          <RotationControl
-            svgObject={svgObject}
-            layerID={this.props.layerID}
-            objectID={this.props.objectID}
-            handleDrag={this.props.handleDrag} />
-         </g>;
+            {controlPath}
+
+            {rotationControl}
+          </g>;
   }
 });
 

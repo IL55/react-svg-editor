@@ -8,6 +8,7 @@ var ObjectActions = require('actions/ObjectActions');
 var HistoryActions = require('actions/HistoryActions');
 var EditorActions = require('actions/EditorActions');
 var EditorStates = require('./EditorStates');
+var Immutable = require('immutable');
 
 var ImageStore = Reflux.createStore({
   /**
@@ -51,6 +52,7 @@ var ImageStore = Reflux.createStore({
       this.listenTo(EditorActions.switchToAddPolygonEditMode, this.switchToAddPolygonEditMode);
       this.listenTo(EditorActions.startAddPolygon, this.startAddPolygon);
       this.listenTo(EditorActions.continueAddPolygon, this.continueAddPolygon);
+      this.listenTo(EditorActions.changePositionForLastPolygonPoint, this.changePositionForLastPolygonPoint);
       this.listenTo(EditorActions.finishAddPolygon, this.finishAddPolygon);
   },
 
@@ -761,7 +763,7 @@ var ImageStore = Reflux.createStore({
    * @param  {object} mousePosition - point (in svg coordinates) where user clicked
    */
   startAddPolygon: function(mousePosition) {
-    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON_FIRST_POINT_ADDED);
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED);
     var svgObject = ImageModel.get('emptyObjectOfType')('polygon', {
       position: {
         scale: 1,
@@ -773,8 +775,12 @@ var ImageStore = Reflux.createStore({
       },
       polygon: [
         {
-          x: mousePosition.x,
-          y: mousePosition.y
+          x: 0,
+          y: 0
+        },
+        {
+          x: 0,
+          y: 0
         }
       ]
     });
@@ -793,16 +799,18 @@ var ImageStore = Reflux.createStore({
     if (!svgObject) {
       return;
     }
+
     var pos = svgObject.get('position');
     var x = pos.get('x');
     var y = pos.get('y');
-    pos = pos.set('width', Math.abs(x - mousePosition.x));
-    pos = pos.set('height', Math.abs(y - mousePosition.y));
 
-    svgObject = svgObject.set('position', pos);
+    var fromStart = {
+      x: mousePosition.x - x,
+      y: mousePosition.y - y
+    };
 
     var polygon = svgObject.get('polygon');
-    polygon = polygon.push(Immutable.Map({x: mousePosition.x, y: mousePosition.y}));
+    polygon = polygon.push(Immutable.Map({x: fromStart.x, y: fromStart.y}));
     svgObject = svgObject.set('polygon', polygon);
 
     this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON_NEXT_POINT_ADDED);
@@ -810,13 +818,42 @@ var ImageStore = Reflux.createStore({
 
     // fire update notification
     this.trigger(this.svgImage);
+
+    if ((Math.abs(fromStart.x) + Math.abs(fromStart.y)) < 10) {
+      // if user wants to finish path
+      EditorActions.finishAddPolygon();
+    }
   },
 
   /**
-   * finish add polygon, i.e. user added all points
-   * @param  {object} mousePosition - point (in svg coordinates) where user finished editing
+   * continue add polygon, i.e. user add next point
+   * @param  {object} mousePosition - point (in svg coordinates) where user clicked
    */
-  finishAddPolygon: function(mousePosition) {
+  changePositionForLastPolygonPoint: function(mousePosition) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+
+    var pos = svgObject.get('position');
+    var x = pos.get('x');
+    var y = pos.get('y');
+
+    polygon = polygon.set(polygon.size - 1, Immutable.Map({x: mousePosition.x - x, y: mousePosition.y - y}));
+    svgObject = svgObject.set('polygon', polygon);
+
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * finish add polygon, i.e. user added all points (closed path)
+   */
+  finishAddPolygon: function() {
     this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON);
 
     var svgObject = this.svgImage.get('editStateData');
@@ -824,15 +861,52 @@ var ImageStore = Reflux.createStore({
       return;
     }
 
-    var pos = svgObject.get('position');
-    var x = pos.get('x');
-    var y = pos.get('y');
-    pos = pos.set('width', Math.abs(x - mousePosition.x));
-    pos = pos.set('height', Math.abs(y - mousePosition.y));
-    svgObject = svgObject.set('position', pos);
 
     var polygon = svgObject.get('polygon');
-    polygon = polygon.push(Immutable.Map({x: mousePosition.x, y: mousePosition.y}));
+    polygon = polygon.pop(); // remove selection point (the point is not added to path)
+    polygon = polygon.pop(); // remove last point, because it is near first point
+
+    var comparerX = function(point) { return point.get('x'); };
+    var comparerY = function(point) { return point.get('y'); };
+    var rect = {
+      minX: polygon.minBy(comparerX).get('x'),
+      minY: polygon.minBy(comparerY).get('y'),
+      maxX: polygon.maxBy(comparerX).get('x'),
+      maxY: polygon.maxBy(comparerY).get('y')
+    };
+
+    var width = Math.abs(rect.maxX - rect.minX);
+    var height = Math.abs(rect.maxY - rect.minY);
+    var pos = svgObject.get('position');
+    pos = pos.set('width', width);
+    pos = pos.set('height', height);
+
+    // virtual move center to actual center of path
+    // i.e. move center of path to new center (parent.x, parent.y) => (child.0, child.0)
+    // but move back all path points
+    // so no actual moving just re-arrange coordinates
+    // between parent group and child object
+
+    // old center coordinates (in parent group)
+    var x = pos.get('x');
+    var y = pos.get('y');
+
+    // vector which move center (against parent coordinate)
+    var moveVector = {
+      x: rect.minX + (width / 2),
+      y: rect.minY + (height / 2)
+    };
+    pos = pos.set('x', x + moveVector.x);
+    pos = pos.set('y', y + moveVector.y);
+    svgObject = svgObject.set('position', pos);
+
+    // move back all path points
+    polygon = polygon.map(function(point) {
+      point = point.set('x', point.get('x') - moveVector.x);
+      point = point.set('y', point.get('y') - moveVector.y);
+
+      return point;
+    });
     svgObject = svgObject.set('polygon', polygon);
 
     this.svgImage = this.addObjectToLayer(this.svgImage, svgObject);

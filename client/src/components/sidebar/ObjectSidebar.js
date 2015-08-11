@@ -5,6 +5,7 @@ var EmptyObjectSidebar = require('./EmptyObjectSidebar');
 
 var TextObjectSidebar = require('./TextObjectSidebar');
 var RectObjectSidebar = require('./RectObjectSidebar');
+var PathObjectSidebar = require('./PathObjectSidebar');
 var ImageStore = require('stores/ImageStore');
 
 var ObjectSidebar = React.createClass({
@@ -20,6 +21,9 @@ var ObjectSidebar = React.createClass({
       }
       if (svgObject.get('type') === 'rect'){
         svgObjectControls = <RectObjectSidebar svgObject={svgObject} objectID={selectedObjectId} layerID={this.props.layerID}/>;
+      }
+      if (svgObject.get('type') === 'polygon'){
+        svgObjectControls = <PathObjectSidebar svgObject={svgObject} objectID={selectedObjectId} layerID={this.props.layerID}/>;
       }
     }
     return <div className='svg-object-controls'>{svgObjectControls}</div>;
