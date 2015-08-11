@@ -9,6 +9,11 @@ var EditorActions = Reflux.createActions([
   'continueAddRect',
   'finishAddRect',
   'switchToAddTextEditMode',
-  'addNewTextToPosition'
+  'addNewTextToPosition',
+  'switchToAddPolygonEditMode',
+  'startAddPolygon',
+  'continueAddPolygon',
+  'finishAddPolygon'
 ]);
+
 module.exports = EditorActions;

@@ -40,6 +40,12 @@ var SvgObject = React.createClass({
 
       // return element g directly
       return <g transform={h.transformFor(svgObject.get('position'))} onMouseDown={this.handleMouseDown} dangerouslySetInnerHTML={{__html: imgTag }} />;
+    } else if (type === 'polygon') {
+      var pathData = 'M ' + svgObject.get('polygon').map(function(point) {
+        return point.get('x').toString() + ' ' + point.get('y').toString();
+      }).join(' L ') + ' Z';
+
+      child = <path className={svgObject.get('className')} style={style} d={pathData}></path>;
     }
 
     return <g transform={h.transformFor(svgObject.get('position'))} onMouseDown={this.handleMouseDown}>

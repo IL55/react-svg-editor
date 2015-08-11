@@ -48,6 +48,10 @@ var ImageStore = Reflux.createStore({
       this.listenTo(EditorActions.switchToAddTextEditMode, this.switchToAddTextEditMode);
       this.listenTo(EditorActions.addNewTextToPosition, this.addNewTextToPosition);
       this.listenTo(EditorActions.switchToSelectObjectEditMode, this.switchToSelectObjectEditMode);
+      this.listenTo(EditorActions.switchToAddPolygonEditMode, this.switchToAddPolygonEditMode);
+      this.listenTo(EditorActions.startAddPolygon, this.startAddPolygon);
+      this.listenTo(EditorActions.continueAddPolygon, this.continueAddPolygon);
+      this.listenTo(EditorActions.finishAddPolygon, this.finishAddPolygon);
   },
 
   /**
@@ -727,12 +731,114 @@ var ImageStore = Reflux.createStore({
   },
 
   /**
-   * switch svg editor to add text mode
+   * switch svg editor to select object mode
    */
   switchToSelectObjectEditMode: function() {
     this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
     this.svgImage = this.svgImage.set('editStateData', null);
     this.svgImage = this.clearSelectedObject(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * switch svg editor to add polygon mode
+   */
+  switchToAddPolygonEditMode: function() {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON);
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.clearSelectedObject(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+
+  /**
+   * start add polygon, i.e. user click on svg edit area
+   * and setup first point of polygon
+   * @param  {object} mousePosition - point (in svg coordinates) where user clicked
+   */
+  startAddPolygon: function(mousePosition) {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON_FIRST_POINT_ADDED);
+    var svgObject = ImageModel.get('emptyObjectOfType')('polygon', {
+      position: {
+        scale: 1,
+        r: 0,
+        x: mousePosition.x,
+        y: mousePosition.y,
+        width: 0,
+        height: 0
+      },
+      polygon: [
+        {
+          x: mousePosition.x,
+          y: mousePosition.y
+        }
+      ]
+    });
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * continue add polygon, i.e. user add next point
+   * @param  {object} mousePosition - point (in svg coordinates) where user clicked
+   */
+  continueAddPolygon: function(mousePosition) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+    var pos = svgObject.get('position');
+    var x = pos.get('x');
+    var y = pos.get('y');
+    pos = pos.set('width', Math.abs(x - mousePosition.x));
+    pos = pos.set('height', Math.abs(y - mousePosition.y));
+
+    svgObject = svgObject.set('position', pos);
+
+    var polygon = svgObject.get('polygon');
+    polygon = polygon.push(Immutable.Map({x: mousePosition.x, y: mousePosition.y}));
+    svgObject = svgObject.set('polygon', polygon);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON_NEXT_POINT_ADDED);
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * finish add polygon, i.e. user added all points
+   * @param  {object} mousePosition - point (in svg coordinates) where user finished editing
+   */
+  finishAddPolygon: function(mousePosition) {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON);
+
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var pos = svgObject.get('position');
+    var x = pos.get('x');
+    var y = pos.get('y');
+    pos = pos.set('width', Math.abs(x - mousePosition.x));
+    pos = pos.set('height', Math.abs(y - mousePosition.y));
+    svgObject = svgObject.set('position', pos);
+
+    var polygon = svgObject.get('polygon');
+    polygon = polygon.push(Immutable.Map({x: mousePosition.x, y: mousePosition.y}));
+    svgObject = svgObject.set('polygon', polygon);
+
+    this.svgImage = this.addObjectToLayer(this.svgImage, svgObject);
+    this.svgImage = this.svgImage.set('editStateData', null);
+
+    HistoryActions.addToHistory(this.svgImage);
 
     // fire update notification
     this.trigger(this.svgImage);

@@ -2,6 +2,7 @@
 var React = require('react');
 require('styles/ImageSidebar.less');
 var selectIcon = require('../../images/select_icon.svg');
+var polygonIcon = require('../../images/polygon.png');
 
 var ObjectSidebar = require('./ObjectSidebar');
 var LayersSidebar = require('./LayersSidebar');
@@ -30,6 +31,10 @@ var ImageSidebar = React.createClass({
     ObjectActions.removeSelectedObject();
   },
 
+  addPolygonMode: function() {
+    EditorActions.switchToAddPolygonEditMode();
+  },
+
   render: function() {
     var layers = this.props.image.get('svgLayers');
     var selectedLayer = layers.find(function(l) {
@@ -52,10 +57,12 @@ var ImageSidebar = React.createClass({
     var editState = this.props.image.get('editState');
 
     var btnClasses = [
-      'btn btn-default', // select
-      'btn btn-default', // add text
-      'btn btn-default'  // add rect
+      'btn btn-default',  // select
+      'btn btn-default',  // add text
+      'btn btn-default',  // add rect
+      'btn btn-default'   // add polygon
     ];
+
     switch(editState) {
       case EditorStates.SELECT_OBJ:
         btnClasses[0] += ' selected-edit-btn';
@@ -70,6 +77,10 @@ var ImageSidebar = React.createClass({
       case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
 
         btnClasses[2] += ' selected-edit-btn';
+      break;
+
+      case EditorStates.ADD_POLYGON:
+        btnClasses[3] += ' selected-edit-btn';
       break;
 
       default:
@@ -109,6 +120,10 @@ var ImageSidebar = React.createClass({
                   </button>
                   <button type="button" className={btnClasses[2]} onClick={this.addRectObjectMode} title="New rectangle mode">
                     <span className="glyphicon glyphicon-stop" aria-hidden="true">Rect</span>
+                  </button>
+                  <button type="button" className={btnClasses[3]} onClick={this.addPolygonMode} title="New polygon mode">
+                      <img src={polygonIcon} className='cursor-icon' />
+                      <span aria-hidden="true">Polygon</span>
                   </button>
                 </div>
               </div>

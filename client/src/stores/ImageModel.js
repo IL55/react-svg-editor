@@ -39,7 +39,11 @@ var initialImage = Immutable.fromJS({
     { id: 'photo1', type: 'photo', position: { scale: 1, x: 340, y: 100, r: 0, width: 50, height: 50 }, src: require('../images/photos/schoolgirl.jpg') },
     { id: 'rect2', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'blue' },
     { id: 'rect3', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 10, width: 250, height: 200 }, fill: 'white' },
-    { id: 'rect4', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' }
+    { id: 'rect4', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' },
+    { id: 'polygon1', type: 'polygon',
+        position: { scale: 1, x: 500, y: 300, r: 0, width: 180, height: 150 }, fill: 'magenta',
+        polygon: [{x: 0, y: 0}, {x: 40, y: 0}, {x: 150, y: 80}, {x: 170, y: 100}, {x: 180, y: 150}, {x: 50, y: 100}]
+    }
   ],
 
   /**
@@ -62,7 +66,7 @@ var initialImage = Immutable.fromJS({
        * list of svg object belongs to layer
        * @type {list}
        */
-      svgObjects: [ 'rect1', 'photo1']
+      svgObjects: [ 'rect1', 'photo1', 'polygon1']
     },
     {
       name: 'Layer2',

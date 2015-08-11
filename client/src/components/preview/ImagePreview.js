@@ -8,7 +8,22 @@ var SvgMask = require('./SvgMask');
 var ImageStore = require('stores/ImageStore');
 var DropTarget = require('react-dnd').DropTarget;
 var EditorActions = require('actions/EditorActions');
+var ObjectActions = require('actions/ObjectActions');
 var EditorStates = require('stores/EditorStates');
+
+
+var KEYS = {
+  enter: 13,
+  left: 37,
+  right: 39,
+  escape: 27,
+  backspace: 8,
+  comma: 188,
+  shift: 16,
+  control: 17,
+  command: 91,
+  del: 46
+};
 
 var svgImageTarget = {
   drop: function (props, monitor, component) {
@@ -25,6 +40,13 @@ function collect(connect) {
 
 
 var ImagePreview = React.createClass({
+  componentDidMount: function() {
+    document.addEventListener('keydown', this.onKeyPressed);
+  },
+
+  componentWillUnmount: function() {
+    document.removeEventListener('keydown', this.onKeyPressed);
+  },
   getInitialState: function() {
     return { dragging: false };
   },
@@ -80,6 +102,20 @@ var ImagePreview = React.createClass({
 
       case EditorStates.ADD_TEXT:
         EditorActions.addNewTextToPosition(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+
+      case EditorStates.ADD_POLYGON:
+        EditorActions.startAddPolygon(mousePosition);
+
+        e.preventDefault();
+        e.stopPropagation();
+      break;
+
+      case EditorStates.ADD_POLYGON_FIRST_POINT_ADDED:
+        EditorActions.continueAddPolygon(mousePosition);
 
         e.preventDefault();
         e.stopPropagation();
@@ -141,8 +177,28 @@ var ImagePreview = React.createClass({
       default:
       break;
     }
+  },
 
+  onKeyPressed: function(e) {
+    var image = this.props.image;
+    switch(image.get('editState')) {
+      case EditorStates.SELECT_OBJ:
+        if (e.keyCode === KEYS.del) {
+          ObjectActions.removeSelectedObject();
 
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      break;
+    }
+
+    // escape means stop edit anything go to selection mode
+    if (e.keyCode === KEYS.escape) {
+      EditorActions.switchToSelectObjectEditMode();
+
+      e.preventDefault();
+      e.stopPropagation();
+    }
   },
 
   render: function() {

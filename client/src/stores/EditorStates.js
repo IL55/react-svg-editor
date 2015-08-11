@@ -17,5 +17,9 @@ export default keyMirror({
   ADD_RECT: null,
   ADD_RECT_FIRST_POINT_ADDED: null,
   ADD_RECT_SECOND_POINT_ADDED: null,
-  ADD_TEXT: null
+  ADD_TEXT: null,
+  ADD_POLYGON: null,
+  ADD_POLYGON_FIRST_POINT_ADDED: null,
+  ADD_POLYGON_NEXT_POINT_ADDED: null
+
 });
