@@ -69,17 +69,11 @@ var ControlObject = React.createClass({
 
     var controlPath;
 
-    var controlPointLocations;
+    var controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
     switch(svgObject.get('type')) {
-      case 'rect':
-      case 'text':
-        controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
-      break;
-
       case 'polygon':
-        if (!editPolygon) {
-          controlPointLocations = [[-width / 2, -height / 2], [width / 2, -height / 2], [-width / 2, height / 2], [width / 2, height / 2]];
-        } else {
+        if (editPolygon) {
+          // no needed special points in edit mode
           controlPointLocations = [];
         }
 
