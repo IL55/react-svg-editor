@@ -42,18 +42,30 @@ var ImageStore = Reflux.createStore({
 
       this.listenTo(HistoryActions.setHistorySnapshotToSvgImage, this.setHistorySnapshotToSvgImage);
 
+      // add rect
       this.listenTo(EditorActions.switchToAddRectEditMode, this.switchToAddRectEditMode);
       this.listenTo(EditorActions.startAddRect, this.startAddRect);
       this.listenTo(EditorActions.continueAddRect, this.continueAddRect);
       this.listenTo(EditorActions.finishAddRect, this.finishAddRect);
+
+      // add text
       this.listenTo(EditorActions.switchToAddTextEditMode, this.switchToAddTextEditMode);
       this.listenTo(EditorActions.addNewTextToPosition, this.addNewTextToPosition);
+
+      // select object
       this.listenTo(EditorActions.switchToSelectObjectEditMode, this.switchToSelectObjectEditMode);
+
+      // add polygon
       this.listenTo(EditorActions.switchToAddPolygonEditMode, this.switchToAddPolygonEditMode);
       this.listenTo(EditorActions.startAddPolygon, this.startAddPolygon);
       this.listenTo(EditorActions.continueAddPolygon, this.continueAddPolygon);
       this.listenTo(EditorActions.changePositionForLastPolygonPoint, this.changePositionForLastPolygonPoint);
       this.listenTo(EditorActions.finishAddPolygon, this.finishAddPolygon);
+
+      // edit polygon
+      this.listenTo(EditorActions.switchToEditPolygonEditMode, this.switchToEditPolygonEditMode);
+      this.listenTo(EditorActions.movePointPolygonEditMode, this.movePointPolygonEditMode);
+      this.listenTo(EditorActions.finishEditPointPolygonEditMode, this.finishEditPointPolygonEditMode);
   },
 
   /**
@@ -853,19 +865,12 @@ var ImageStore = Reflux.createStore({
   },
 
   /**
-   * finish add polygon, i.e. user added all points (closed path)
+   * normalize polygon points
+   * i.e. recalculate center and move all points according new center (in respect by child coordinates),
+   * but move center back (in respect by parent coordinates)
    */
-  finishAddPolygon: function() {
-    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON);
-
-    var svgObject = this.svgImage.get('editStateData');
-    if (!svgObject) {
-      return;
-    }
-
-
+  normalizePolygon: function(svgObject) {
     var polygon = svgObject.get('polygon');
-    polygon = polygon.pop(); // remove selection point (the point is not added to path)
 
     var comparerX = function(point) { return point.get('x'); };
     var comparerY = function(point) { return point.get('y'); };
@@ -908,12 +913,119 @@ var ImageStore = Reflux.createStore({
 
       return point;
     });
+
     svgObject = svgObject.set('polygon', polygon);
+
+    return svgObject;
+  },
+
+  /**
+   * finish add polygon, i.e. user added all points (closed path)
+   */
+  finishAddPolygon: function() {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_POLYGON);
+
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+    polygon = polygon.pop(); // remove selection point (the point is not added to path)
+    svgObject = svgObject.set('polygon', polygon);
+
+    svgObject = this.normalizePolygon(svgObject);
 
     this.svgImage = this.addObjectToLayer(this.svgImage, svgObject);
     this.svgImage = this.svgImage.set('editStateData', null);
 
     HistoryActions.addToHistory(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * start to edit polygon (polygon existed and added to layer)
+   * @param  {object} objectID - polygon for edit
+   * @param  {Number} pointID - point for edit
+   */
+  switchToEditPolygonEditMode: function(objectID, pointID) {
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
+      return svgObjectIt.get('id') === objectID;
+    });
+    if (svgObjectIndex === -1) {
+      return;
+    }
+    var svgObject = svgObjects.get(svgObjectIndex);
+    svgObject = svgObject.setIn(['polygon', pointID, 'selected'], true);
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.EDIT_POLYGON_POINT);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * move point during edit polygon
+   * edit polygon means change some polygon's point position
+   * @param  {object} newPosition - relative position of mouse (dx, dy)
+   */
+  movePointPolygonEditMode: function(newPosition) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+    var pointIndex = polygon.findIndex(function(pointIt) {
+      return pointIt.get('selected');
+    });
+
+    var point = polygon.get(pointIndex);
+    point = point.set('x', point.get('x') + newPosition.dx);
+    point = point.set('y', point.get('y') + newPosition.dy);
+    polygon = polygon.set(pointIndex, point);
+    svgObject = svgObject.set('polygon', polygon);
+
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.EDIT_POLYGON_POINT);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * finish point moving during edit polygon
+   */
+  finishEditPointPolygonEditMode: function() {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+    var pointIndex = polygon.findIndex(function(pointIt) {
+      return pointIt.get('selected');
+    });
+
+    var point = polygon.get(pointIndex);
+    point = point.delete('selected');
+    polygon = polygon.set(pointIndex, point);
+    svgObject = svgObject.set('polygon', polygon);
+    svgObject = this.normalizePolygon(svgObject);
+
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectIndex = svgObjects.findIndex(function(obj) {
+      return obj.get('id') === svgObject.get('id');
+    });
+    this.svgImage = this.svgImage.setIn(['svgObjects', svgObjectIndex], svgObject);
+
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
 
     // fire update notification
     this.trigger(this.svgImage);

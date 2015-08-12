@@ -14,7 +14,10 @@ var EditorActions = Reflux.createActions([
   'startAddPolygon',
   'continueAddPolygon',
   'changePositionForLastPolygonPoint',
-  'finishAddPolygon'
+  'finishAddPolygon',
+  'switchToEditPolygonEditMode',
+  'movePointPolygonEditMode',
+  'finishEditPointPolygonEditMode'
 ]);
 
 module.exports = EditorActions;

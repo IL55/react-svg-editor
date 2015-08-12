@@ -5,6 +5,7 @@ var ControlPoint = require('./ControlPoint');
 var RotationControl = require('./RotationControl');
 var h = require('./svg-helpers');
 var ObjectActions = require('actions/ObjectActions');
+var EditorActions = require('actions/EditorActions');
 var EditorStates = require('stores/EditorStates');
 var ControlPath = require('./ControlPath');
 
@@ -12,21 +13,41 @@ var ControlObject = React.createClass({
   getInitialState: function() {
     return { mouseDown: false, lastMouseX: 0, lastMouseY: 0 };
   },
+
   handleMouseDown: function(e) {
     this.props.handleDrag(true, this.handleMouseMove, this.handleMouseUp);
     this.setState({ mouseDown: true, lastMouseX: e.pageX, lastMouseY: e.pageY });
   },
+
   handleMouseUp: function() {
     this.setState({ mouseDown: false });
     this.props.handleDrag(false);
-  },
-  handleMouseMove: function(e) {
-    var svgObject = this.props.svgObject;
 
-    ObjectActions.moveObject(this.props.layerID, this.props.objectID, {
-      x: svgObject.get('position').get('x') + e.pageX - this.state.lastMouseX,
-      y: svgObject.get('position').get('y') + e.pageY - this.state.lastMouseY
-    });
+    switch(this.props.editState) {
+      case EditorStates.EDIT_POLYGON_POINT:
+        EditorActions.finishEditPointPolygonEditMode();
+      break;
+    }
+  },
+
+  handleMouseMove: function(e) {
+
+    switch(this.props.editState) {
+      case EditorStates.SELECT_OBJ:
+        var svgObject = this.props.svgObject;
+        ObjectActions.moveObject(this.props.layerID, this.props.objectID, {
+          x: svgObject.get('position').get('x') + e.pageX - this.state.lastMouseX,
+          y: svgObject.get('position').get('y') + e.pageY - this.state.lastMouseY
+        });
+      break;
+
+      case EditorStates.EDIT_POLYGON_POINT:
+        EditorActions.movePointPolygonEditMode({
+          dx: e.pageX - this.state.lastMouseX,
+          dy: e.pageY - this.state.lastMouseY
+        });
+      break;
+    }
 
     this.setState({ lastMouseX: e.pageX, lastMouseY: e.pageY });
   },
@@ -77,7 +98,7 @@ var ControlObject = React.createClass({
           controlPointLocations = [];
         }
 
-        controlPath = <ControlPath polygon={svgObject.get('polygon')} editState={this.props.editState} />;
+        controlPath = <ControlPath objectID={this.props.objectID} polygon={svgObject.get('polygon')} editState={this.props.editState} />;
       break;
     }
 

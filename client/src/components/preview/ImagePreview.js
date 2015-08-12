@@ -266,6 +266,9 @@ var ImagePreview = React.createClass({
       case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
         svgObject = image.get('editStateData');
       break;
+      case EditorStates.EDIT_POLYGON_POINT:
+        svgObject = image.get('editStateData');
+      break;
       default:
       break;
     }

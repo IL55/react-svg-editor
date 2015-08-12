@@ -20,6 +20,6 @@ export default keyMirror({
   ADD_TEXT: null,
   ADD_POLYGON: null,
   ADD_POLYGON_FIRST_TWO_POINTS_ADDED: null,
-  ADD_POLYGON_NEXT_POINT_ADDED: null
-
+  ADD_POLYGON_NEXT_POINT_ADDED: null,
+  EDIT_POLYGON_POINT: null
 });
