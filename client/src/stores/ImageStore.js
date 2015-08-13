@@ -66,6 +66,11 @@ var ImageStore = Reflux.createStore({
       this.listenTo(EditorActions.switchToEditPolygonEditMode, this.switchToEditPolygonEditMode);
       this.listenTo(EditorActions.movePointPolygonEditMode, this.movePointPolygonEditMode);
       this.listenTo(EditorActions.finishEditPointPolygonEditMode, this.finishEditPointPolygonEditMode);
+
+      // edit polygon curve point
+      this.listenTo(EditorActions.switchToEditCurvePolygonEditMode, this.switchToEditCurvePolygonEditMode);
+      this.listenTo(EditorActions.moveCurvePointPolygonEditMode, this.moveCurvePointPolygonEditMode);
+      this.listenTo(EditorActions.finishEditCurvePointPolygonEditMode, this.finishEditCurvePointPolygonEditMode);
   },
 
   /**
@@ -910,6 +915,13 @@ var ImageStore = Reflux.createStore({
     polygon = polygon.map(function(point) {
       point = point.set('x', point.get('x') - moveVector.x);
       point = point.set('y', point.get('y') - moveVector.y);
+      if (point.get('cmd') === 'C') {
+        // move curve points too
+        point = point.set('x1', point.get('x1') - moveVector.x);
+        point = point.set('y1', point.get('y1') - moveVector.y);
+        point = point.set('x2', point.get('x2') - moveVector.x);
+        point = point.set('y2', point.get('y2') - moveVector.y);
+      }
 
       return point;
     });
@@ -1029,7 +1041,98 @@ var ImageStore = Reflux.createStore({
 
     // fire update notification
     this.trigger(this.svgImage);
+  },
+
+  /**
+   * start to edit curve point for polygon (polygon existed and added to layer)
+   * @param  {object} objectID - polygon for edit
+   * @param  {Number} pointID - point (in polygon) for edit
+   * @param  {Number} curvePointID - point (in curve definition) for edit
+   */
+  switchToEditCurvePolygonEditMode: function(objectID, pointID, curvePointID) {
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
+      return svgObjectIt.get('id') === objectID;
+    });
+    if (svgObjectIndex === -1) {
+      return;
+    }
+    var svgObject = svgObjects.get(svgObjectIndex);
+    svgObject = svgObject.setIn(['polygon', pointID, 'selected'], true);
+    svgObject = svgObject.setIn(['polygon', pointID, 'curvePointID'], curvePointID);
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.EDIT_POLYGON_CURVE_POINT);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * move curve point during edit polygon
+   * edit polygon means change some polygon's curve point position
+   * @param  {object} newPosition - relative position of mouse (dx, dy)
+   */
+  moveCurvePointPolygonEditMode: function(newPosition) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+    var pointIndex = polygon.findIndex(function(pointIt) {
+      return pointIt.get('selected');
+    });
+
+    var point = polygon.get(pointIndex);
+    var curvePointID = point.get('curvePointID');
+    point = point.set('x' + curvePointID, point.get('x' + curvePointID) + newPosition.dx);
+    point = point.set('y' + curvePointID, point.get('y' + curvePointID) + newPosition.dy);
+    polygon = polygon.set(pointIndex, point);
+    svgObject = svgObject.set('polygon', polygon);
+
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.EDIT_POLYGON_CURVE_POINT);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * finish curve point moving during edit polygon
+   */
+  finishEditCurvePointPolygonEditMode: function() {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+    var pointIndex = polygon.findIndex(function(pointIt) {
+      return pointIt.get('selected');
+    });
+
+    var point = polygon.get(pointIndex);
+    point = point.delete('selected');
+    point = point.delete('curvePointID');
+    polygon = polygon.set(pointIndex, point);
+    svgObject = svgObject.set('polygon', polygon);
+    svgObject = this.normalizePolygon(svgObject);
+
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectIndex = svgObjects.findIndex(function(obj) {
+      return obj.get('id') === svgObject.get('id');
+    });
+    this.svgImage = this.svgImage.setIn(['svgObjects', svgObjectIndex], svgObject);
+
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
+
+    // fire update notification
+    this.trigger(this.svgImage);
   }
+
 });
 
 module.exports = ImageStore;

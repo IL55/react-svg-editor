@@ -41,9 +41,20 @@ var SvgObject = React.createClass({
       // return element g directly
       return <g transform={h.transformFor(svgObject.get('position'))} onMouseDown={this.handleMouseDown} dangerouslySetInnerHTML={{__html: imgTag }} />;
     } else if (type === 'polygon') {
-      var pathData = 'M ' + svgObject.get('polygon').map(function(point) {
-        return point.get('x').toString() + ' ' + point.get('y').toString();
-      }).join(' L ') + ' Z';
+      var pathData = '';
+      svgObject.get('polygon').forEach(function(point) {
+        var cmd = point.get('cmd');
+        switch(cmd) {
+          case 'M': // move
+          case 'L': // line
+            pathData += cmd + ' ' + point.get('x') + ' ' + point.get('y') + ' ';
+          break;
+          case 'C':
+            pathData += cmd + ' ' + point.get('x1') + ' ' + point.get('y1') + ', ' + point.get('x2') + ' ' + point.get('y2') + ', ' + point.get('x') + ' ' + point.get('y') + ' ';
+          break;
+        }
+      });
+      pathData += 'Z';
 
       child = <path className={svgObject.get('className')} style={style} d={pathData}></path>;
     }

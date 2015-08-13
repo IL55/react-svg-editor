@@ -42,7 +42,11 @@ var initialImage = Immutable.fromJS({
     { id: 'rect4', type: 'rect', position: { scale: 1, x: 220, y: 220, r: 100, width: 100, height: 100 }, fill: 'black' },
     { id: 'polygon1', type: 'polygon',
         position: { scale: 1, x: 500, y: 300, r: -15, width: 148, height: 114 }, fill: 'magenta',
-        polygon: [{x: -16, y: -55}, {x: 42, y: -57}, {x: 74, y: -26}, {x: 44, y: 42}, {x: -27, y: 57}, {x: -74, y: -12}]
+        polygon: [{cmd: 'M', x: -16, y: -55}, {cmd: 'L', x: 42, y: -57}, {cmd: 'L', x: 74, y: -26}, {cmd: 'L', x: 44, y: 42}, {cmd: 'L', x: -27, y: 57}, {cmd: 'L', x: -74, y: -12}]
+    },
+    { id: 'polygon2', type: 'polygon',
+        position: { scale: 1, x: 584, y: 102, r: -15, width: 133, height: 112 }, fill: 'purple',
+        polygon: [{cmd: 'M', x: -16, y: -55}, {cmd: 'C', x1: 94, y1: -129, x2: 127, y2: 134, x: 59, y: 41}, {cmd: 'L', x: -27, y: 57}, {cmd: 'L', x: -74, y: -12}]
     }
   ],
 
@@ -66,7 +70,7 @@ var initialImage = Immutable.fromJS({
        * list of svg object belongs to layer
        * @type {list}
        */
-      svgObjects: [ 'rect1', 'photo1', 'polygon1']
+      svgObjects: [ 'rect1', 'photo1', 'polygon1', 'polygon2']
     },
     {
       name: 'Layer2',

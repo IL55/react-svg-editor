@@ -27,6 +27,10 @@ var ControlObject = React.createClass({
       case EditorStates.EDIT_POLYGON_POINT:
         EditorActions.finishEditPointPolygonEditMode();
       break;
+
+      case EditorStates.EDIT_POLYGON_CURVE_POINT:
+        EditorActions.finishEditCurvePointPolygonEditMode();
+      break;
     }
   },
 
@@ -43,6 +47,13 @@ var ControlObject = React.createClass({
 
       case EditorStates.EDIT_POLYGON_POINT:
         EditorActions.movePointPolygonEditMode({
+          dx: e.pageX - this.state.lastMouseX,
+          dy: e.pageY - this.state.lastMouseY
+        });
+      break;
+
+      case EditorStates.EDIT_POLYGON_CURVE_POINT:
+        EditorActions.moveCurvePointPolygonEditMode({
           dx: e.pageX - this.state.lastMouseX,
           dy: e.pageY - this.state.lastMouseY
         });
