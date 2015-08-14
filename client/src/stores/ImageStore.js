@@ -1304,6 +1304,18 @@ var ImageStore = Reflux.createStore({
     this.svgImage = this.svgImage.set('editStateData', svgObject);
     this.svgImage = this.svgImage.set('editState', EditorStates.SELECTED_OBJ_MOVE);
 
+    // update object too (to support moving object to cursor)
+    var objectID = svgObject.get('id');
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
+      return svgObjectIt.get('id') === objectID;
+    });
+    if (svgObjectIndex === -1) {
+      return;
+    }
+    svgObjects = svgObjects.set(svgObjectIndex, svgObject);
+    this.svgImage = this.svgImage.set('svgObjects', svgObjects);
+
     // fire update notification
     this.trigger(this.svgImage);
   },
@@ -1325,7 +1337,6 @@ var ImageStore = Reflux.createStore({
     if (svgObjectIndex === -1) {
       return;
     }
-
     svgObjects = svgObjects.set(svgObjectIndex, svgObject);
     this.svgImage = this.svgImage.set('svgObjects', svgObjects);
 
