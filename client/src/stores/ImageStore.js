@@ -71,6 +71,11 @@ var ImageStore = Reflux.createStore({
       this.listenTo(EditorActions.switchToEditCurvePolygonEditMode, this.switchToEditCurvePolygonEditMode);
       this.listenTo(EditorActions.moveCurvePointPolygonEditMode, this.moveCurvePointPolygonEditMode);
       this.listenTo(EditorActions.finishEditCurvePointPolygonEditMode, this.finishEditCurvePointPolygonEditMode);
+
+      // add polygon curve ( to selected polygon to selected point)
+      this.listenTo(EditorActions.switchToAddCurvePolygonEditMode, this.switchToAddCurvePolygonEditMode);
+      this.listenTo(EditorActions.addCurveToPolygon, this.addCurveToPolygon);
+
   },
 
   /**
@@ -1039,6 +1044,8 @@ var ImageStore = Reflux.createStore({
     this.svgImage = this.svgImage.set('editStateData', null);
     this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
 
+    HistoryActions.addToHistory(this.svgImage);
+
     // fire update notification
     this.trigger(this.svgImage);
   },
@@ -1129,9 +1136,94 @@ var ImageStore = Reflux.createStore({
     this.svgImage = this.svgImage.set('editStateData', null);
     this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
 
+    HistoryActions.addToHistory(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * switch svg editor to add curve (to selected polygon) mode
+   */
+  switchToAddCurvePolygonEditMode: function() {
+    this.svgImage = this.svgImage.set('editState', EditorStates.ADD_CURVE_TO_POLYGON);
+    var objectID = this.svgImage.get('selectedObjectId');
+    if (!objectID) {
+      return;
+    }
+
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObject = svgObjects.find(function(obj) {
+      return obj.get('id') === objectID;
+    });
+
+    if (!svgObject) {
+      return;
+    }
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * add curve to polygon (polygon existed and added to layer)
+   * @param  {object} objectID - polygon for add curve
+   * @param  {Number} pointID - point (in polygon) for add curve
+   */
+  addCurveToPolygon: function(objectID, pointID) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+
+    var polygon = svgObject.get('polygon');
+    var point = polygon.get(pointID);
+
+    var cmd = point.get('cmd');
+    if (cmd === 'C' ||  // already curve
+        cmd === 'M') {  // first point - ignore for now
+      return;
+    }
+
+    var pointPos = {
+      x: point.get('x'),
+      y: point.get('y')
+    };
+
+    var prevPoint = polygon.get(pointID - 1);
+    var prevPointPos = {
+      x: prevPoint.get('x'),
+      y: prevPoint.get('y')
+    };
+
+    //point = point.set('selected', true);
+    point = point.set('cmd', 'C');
+    point = point.set('x1', pointPos.x - (pointPos.x - prevPointPos.x) * (1.0 / 3.0));
+    point = point.set('y1', pointPos.y - (pointPos.y - prevPointPos.y) * (1.0 / 3.0));
+    point = point.set('x2', pointPos.x - (pointPos.x - prevPointPos.x) * (2.0 / 3.0));
+    point = point.set('y2', pointPos.y - (pointPos.y - prevPointPos.y) * (2.0 / 3.0));
+
+    polygon = polygon.set(pointID, point);
+    svgObject = svgObject.set('polygon', polygon);
+
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectID = svgObject.get('id');
+    var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
+      return svgObjectIt.get('id') === svgObjectID;
+    });
+
+    svgObjects = svgObjects.set(svgObjectIndex, svgObject);
+    this.svgImage = this.svgImage.set('svgObjects', svgObjects);
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
+
+    HistoryActions.addToHistory(this.svgImage);
+
     // fire update notification
     this.trigger(this.svgImage);
   }
+
 
 });
 

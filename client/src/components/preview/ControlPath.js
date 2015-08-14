@@ -13,6 +13,7 @@ var ControlPath = React.createClass({
       case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
       case EditorStates.EDIT_POLYGON_POINT:
       case EditorStates.EDIT_POLYGON_CURVE_POINT:
+      case EditorStates.ADD_CURVE_TO_POLYGON:
         editPolygon = true;
       break;
     }

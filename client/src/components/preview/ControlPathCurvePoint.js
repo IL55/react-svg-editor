@@ -8,8 +8,10 @@ var EditorActions = require('actions/EditorActions');
 var ControlPathCurvePoint = React.createClass({
 
   onMouseDown: function() {
-    if (this.props.editState === EditorStates.SELECT_OBJ) {
-      EditorActions.switchToEditCurvePolygonEditMode(this.props.objectID, this.props.pointID, this.props.curvePointID);
+    switch(this.props.editState) {
+      case EditorStates.SELECT_OBJ:
+        EditorActions.switchToEditCurvePolygonEditMode(this.props.objectID, this.props.pointID, this.props.curvePointID);
+      break;
     }
   },
 

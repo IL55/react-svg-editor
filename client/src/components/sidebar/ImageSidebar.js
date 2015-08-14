@@ -64,7 +64,8 @@ var ImageSidebar = React.createClass({
       'btn btn-default',  // select
       'btn btn-default',  // add text
       'btn btn-default',  // add rect
-      'btn btn-default'   // add polygon
+      'btn btn-default',  // add polygon
+      'btn btn-default'   // edit curves
     ];
 
     switch(editState) {
