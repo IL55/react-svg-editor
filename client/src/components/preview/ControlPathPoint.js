@@ -7,14 +7,25 @@ var EditorActions = require('actions/EditorActions');
 
 var ControlPathPoint = React.createClass({
 
-  onMouseDown: function() {
+  onMouseDown: function(e) {
     switch(this.props.editState) {
       case EditorStates.SELECT_OBJ:
-        EditorActions.switchToEditPolygonEditMode(this.props.objectID, this.props.pointID);
+        EditorActions.switchToEditPolygonEditMode({
+            x: e.pageX,
+            y: e.pageY
+          },
+          this.props.objectID,
+          this.props.pointID);
+
+        e.preventDefault();
+        e.stopPropagation();
       break;
 
       case EditorStates.ADD_CURVE_TO_POLYGON:
         EditorActions.addCurveToPolygon(this.props.objectID, this.props.pointID);
+
+        e.preventDefault();
+        e.stopPropagation();
       break;
     }
   },

@@ -10,58 +10,20 @@ var EditorStates = require('stores/EditorStates');
 var ControlPath = require('./ControlPath');
 
 var ControlObject = React.createClass({
-  getInitialState: function() {
-    return { mouseDown: false, lastMouseX: 0, lastMouseY: 0 };
-  },
-
   handleMouseDown: function(e) {
-    this.props.handleDrag(true, this.handleMouseMove, this.handleMouseUp);
-    this.setState({ mouseDown: true, lastMouseX: e.pageX, lastMouseY: e.pageY });
-  },
-
-  handleMouseUp: function() {
-    this.setState({ mouseDown: false });
-    this.props.handleDrag(false);
-
-    switch(this.props.editState) {
-      case EditorStates.EDIT_POLYGON_POINT:
-        EditorActions.finishEditPointPolygonEditMode();
-      break;
-
-      case EditorStates.EDIT_POLYGON_CURVE_POINT:
-        EditorActions.finishEditCurvePointPolygonEditMode();
-      break;
-    }
-  },
-
-  handleMouseMove: function(e) {
-
     switch(this.props.editState) {
       case EditorStates.SELECT_OBJ:
-        var svgObject = this.props.svgObject;
-        ObjectActions.moveObject(this.props.layerID, this.props.objectID, {
-          x: svgObject.get('position').get('x') + e.pageX - this.state.lastMouseX,
-          y: svgObject.get('position').get('y') + e.pageY - this.state.lastMouseY
+        EditorActions.startSelectedObjectMove({
+          x: e.pageX,
+          y: e.pageY
         });
-      break;
 
-      case EditorStates.EDIT_POLYGON_POINT:
-        EditorActions.movePointPolygonEditMode({
-          dx: e.pageX - this.state.lastMouseX,
-          dy: e.pageY - this.state.lastMouseY
-        });
-      break;
-
-      case EditorStates.EDIT_POLYGON_CURVE_POINT:
-        EditorActions.moveCurvePointPolygonEditMode({
-          dx: e.pageX - this.state.lastMouseX,
-          dy: e.pageY - this.state.lastMouseY
-        });
+        e.preventDefault();
+        e.stopPropagation();
       break;
     }
-
-    this.setState({ lastMouseX: e.pageX, lastMouseY: e.pageY });
   },
+
   handleResizeStart: function(e) {
     e.stopPropagation();
     this.props.handleDrag(true, this.handleResizeMove, this.handleResizeEnd, this.refs.container);
@@ -132,7 +94,9 @@ var ControlObject = React.createClass({
       return <ControlPoint x={location[0]} y={location[1]} onMouseDown={self.handleResizeStart} key={i} />;
     });
 
-    return <g ref='container' transform={h.transformFor(pos)} onMouseDown={self.handleMouseDown}>
+    return <g ref='container'
+              transform={h.transformFor(pos)}
+              onMouseDown={self.handleMouseDown}>
             {haloRect}
 
             {controlPoints}

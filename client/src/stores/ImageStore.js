@@ -76,6 +76,11 @@ var ImageStore = Reflux.createStore({
       this.listenTo(EditorActions.switchToAddCurvePolygonEditMode, this.switchToAddCurvePolygonEditMode);
       this.listenTo(EditorActions.addCurveToPolygon, this.addCurveToPolygon);
 
+      this.listenTo(EditorActions.startSelectedObjectMove, this.startSelectedObjectMove);
+      this.listenTo(EditorActions.continueSelectedObjectMove, this.continueSelectedObjectMove);
+      this.listenTo(EditorActions.finishSelectedObjectMove, this.finishSelectedObjectMove);
+
+
   },
 
   /**
@@ -797,10 +802,12 @@ var ImageStore = Reflux.createStore({
       },
       polygon: [
         {
+          cmd: 'M',
           x: 0,
           y: 0
         },
         {
+          cmd: 'L',
           x: 0,
           y: 0
         }
@@ -838,7 +845,7 @@ var ImageStore = Reflux.createStore({
     }
 
     var polygon = svgObject.get('polygon');
-    polygon = polygon.push(Immutable.Map({x: fromStart.x, y: fromStart.y}));
+    polygon = polygon.push(Immutable.Map({cmd: 'L', x: fromStart.x, y: fromStart.y}));
 
     svgObject = svgObject.set('polygon', polygon);
 
@@ -865,7 +872,7 @@ var ImageStore = Reflux.createStore({
     var x = pos.get('x');
     var y = pos.get('y');
 
-    polygon = polygon.set(polygon.size - 1, Immutable.Map({x: mousePosition.x - x, y: mousePosition.y - y}));
+    polygon = polygon.set(polygon.size - 1, Immutable.Map({cmd: 'L', x: mousePosition.x - x, y: mousePosition.y - y}));
     svgObject = svgObject.set('polygon', polygon);
 
     this.svgImage = this.svgImage.set('editStateData', svgObject);
@@ -964,10 +971,11 @@ var ImageStore = Reflux.createStore({
 
   /**
    * start to edit polygon (polygon existed and added to layer)
+   * @param  {object} mousePosition - point (in screen coordinates) where user clicked
    * @param  {object} objectID - polygon for edit
    * @param  {Number} pointID - point for edit
    */
-  switchToEditPolygonEditMode: function(objectID, pointID) {
+  switchToEditPolygonEditMode: function(mousePosition, objectID, pointID) {
     var svgObjects = this.svgImage.get('svgObjects');
     var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
       return svgObjectIt.get('id') === objectID;
@@ -977,6 +985,7 @@ var ImageStore = Reflux.createStore({
     }
     var svgObject = svgObjects.get(svgObjectIndex);
     svgObject = svgObject.setIn(['polygon', pointID, 'selected'], true);
+    svgObject = svgObject.set('mousePositionLast', Immutable.Map(mousePosition));
     this.svgImage = this.svgImage.set('editStateData', svgObject);
 
     this.svgImage = this.svgImage.set('editState', EditorStates.EDIT_POLYGON_POINT);
@@ -988,13 +997,15 @@ var ImageStore = Reflux.createStore({
   /**
    * move point during edit polygon
    * edit polygon means change some polygon's point position
-   * @param  {object} newPosition - relative position of mouse (dx, dy)
+   * @param  {object} mousePosition - screen mouse position of mouse (x, d)
    */
-  movePointPolygonEditMode: function(newPosition) {
+  movePointPolygonEditMode: function(mousePosition) {
     var svgObject = this.svgImage.get('editStateData');
     if (!svgObject) {
       return;
     }
+
+    var mousePositionInital = svgObject.get('mousePositionLast');
 
     var polygon = svgObject.get('polygon');
     var pointIndex = polygon.findIndex(function(pointIt) {
@@ -1002,10 +1013,11 @@ var ImageStore = Reflux.createStore({
     });
 
     var point = polygon.get(pointIndex);
-    point = point.set('x', point.get('x') + newPosition.dx);
-    point = point.set('y', point.get('y') + newPosition.dy);
+    point = point.set('x', point.get('x') + mousePosition.x - mousePositionInital.get('x'));
+    point = point.set('y', point.get('y') + mousePosition.y - mousePositionInital.get('y'));
     polygon = polygon.set(pointIndex, point);
     svgObject = svgObject.set('polygon', polygon);
+    svgObject = svgObject.set('mousePositionLast', Immutable.Map(mousePosition));
 
     this.svgImage = this.svgImage.set('editStateData', svgObject);
 
@@ -1034,6 +1046,7 @@ var ImageStore = Reflux.createStore({
     polygon = polygon.set(pointIndex, point);
     svgObject = svgObject.set('polygon', polygon);
     svgObject = this.normalizePolygon(svgObject);
+    svgObject = svgObject.delete('mousePositionLast');
 
     var svgObjects = this.svgImage.get('svgObjects');
     var svgObjectIndex = svgObjects.findIndex(function(obj) {
@@ -1052,11 +1065,12 @@ var ImageStore = Reflux.createStore({
 
   /**
    * start to edit curve point for polygon (polygon existed and added to layer)
+   * @param  {object} mousePosition - screen position of mouse (x, y)
    * @param  {object} objectID - polygon for edit
    * @param  {Number} pointID - point (in polygon) for edit
    * @param  {Number} curvePointID - point (in curve definition) for edit
    */
-  switchToEditCurvePolygonEditMode: function(objectID, pointID, curvePointID) {
+  switchToEditCurvePolygonEditMode: function(mousePosition, objectID, pointID, curvePointID) {
     var svgObjects = this.svgImage.get('svgObjects');
     var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
       return svgObjectIt.get('id') === objectID;
@@ -1067,6 +1081,7 @@ var ImageStore = Reflux.createStore({
     var svgObject = svgObjects.get(svgObjectIndex);
     svgObject = svgObject.setIn(['polygon', pointID, 'selected'], true);
     svgObject = svgObject.setIn(['polygon', pointID, 'curvePointID'], curvePointID);
+    svgObject = svgObject.set('mousePositionLast', Immutable.Map(mousePosition));
     this.svgImage = this.svgImage.set('editStateData', svgObject);
 
     this.svgImage = this.svgImage.set('editState', EditorStates.EDIT_POLYGON_CURVE_POINT);
@@ -1078,9 +1093,9 @@ var ImageStore = Reflux.createStore({
   /**
    * move curve point during edit polygon
    * edit polygon means change some polygon's curve point position
-   * @param  {object} newPosition - relative position of mouse (dx, dy)
+   * @param  {object} mousePosition - screen position of mouse (x, y)
    */
-  moveCurvePointPolygonEditMode: function(newPosition) {
+  moveCurvePointPolygonEditMode: function(mousePosition) {
     var svgObject = this.svgImage.get('editStateData');
     if (!svgObject) {
       return;
@@ -1093,10 +1108,12 @@ var ImageStore = Reflux.createStore({
 
     var point = polygon.get(pointIndex);
     var curvePointID = point.get('curvePointID');
-    point = point.set('x' + curvePointID, point.get('x' + curvePointID) + newPosition.dx);
-    point = point.set('y' + curvePointID, point.get('y' + curvePointID) + newPosition.dy);
+    var mousePositionInital = svgObject.get('mousePositionLast');
+    point = point.set('x' + curvePointID, point.get('x' + curvePointID) + mousePosition.x - mousePositionInital.get('x'));
+    point = point.set('y' + curvePointID, point.get('y' + curvePointID) + mousePosition.y - mousePositionInital.get('y'));
     polygon = polygon.set(pointIndex, point);
     svgObject = svgObject.set('polygon', polygon);
+    svgObject = svgObject.set('mousePositionLast', Immutable.Map(mousePosition));
 
     this.svgImage = this.svgImage.set('editStateData', svgObject);
 
@@ -1126,6 +1143,7 @@ var ImageStore = Reflux.createStore({
     polygon = polygon.set(pointIndex, point);
     svgObject = svgObject.set('polygon', polygon);
     svgObject = this.normalizePolygon(svgObject);
+    svgObject = svgObject.delete('mousePositionLast');
 
     var svgObjects = this.svgImage.get('svgObjects');
     var svgObjectIndex = svgObjects.findIndex(function(obj) {
@@ -1237,8 +1255,88 @@ var ImageStore = Reflux.createStore({
 
     // fire update notification
     this.trigger(this.svgImage);
-  }
+  },
 
+  /**
+   * start to move for selected object
+   * @param  {object} mousePosition - point (in screen coordinates) where user clicked
+   */
+  startSelectedObjectMove: function(mousePosition) {
+    var svgObjects = this.svgImage.get('svgObjects');
+    var objectID = this.svgImage.get('selectedObjectId');
+    if (!objectID) {
+      return;
+    }
+    var svgObject = svgObjects.find(function(objectIt) {
+      return objectIt.get('id') === objectID;
+    });
+    svgObject = svgObject.set('mousePositionLast', Immutable.Map(mousePosition));
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECTED_OBJ_MOVE);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * continue to move for selected object
+   * @param  {object} mousePosition - point (in screen coordinates) where user clicked
+   */
+  continueSelectedObjectMove: function(mousePosition) {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+    var mousePositionInital = svgObject.get('mousePositionLast');
+    var pos = svgObject.get('position');
+
+    var newPos = {
+      x: pos.get('x') + mousePosition.x - mousePositionInital.get('x'),
+      y: pos.get('y') + mousePosition.y - mousePositionInital.get('y')
+    };
+
+    pos = pos.set('x', newPos.x);
+    pos = pos.set('y', newPos.y);
+
+    svgObject = svgObject.set('position', pos);
+    svgObject = svgObject.set('mousePositionLast', Immutable.Map(mousePosition));
+    this.svgImage = this.svgImage.set('editStateData', svgObject);
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECTED_OBJ_MOVE);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  },
+
+  /**
+   * finish to move for selected object
+   */
+  finishSelectedObjectMove: function() {
+    var svgObject = this.svgImage.get('editStateData');
+    if (!svgObject) {
+      return;
+    }
+    svgObject = svgObject.delete('mousePositionLast');
+    var objectID = svgObject.get('id');
+    var svgObjects = this.svgImage.get('svgObjects');
+    var svgObjectIndex = svgObjects.findIndex(function(svgObjectIt) {
+      return svgObjectIt.get('id') === objectID;
+    });
+    if (svgObjectIndex === -1) {
+      return;
+    }
+
+    svgObjects = svgObjects.set(svgObjectIndex, svgObject);
+    this.svgImage = this.svgImage.set('svgObjects', svgObjects);
+
+    this.svgImage = this.svgImage.set('editStateData', null);
+    this.svgImage = this.svgImage.set('editState', EditorStates.SELECT_OBJ);
+
+    HistoryActions.addToHistory(this.svgImage);
+
+    // fire update notification
+    this.trigger(this.svgImage);
+  }
 
 });
 

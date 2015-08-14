@@ -29,7 +29,12 @@ var EditorActions = Reflux.createActions([
 
   'switchToAddCurvePolygonEditMode',
   'addCurveToPolygon',
-  'finishAddCurveToPolygon'
+  'finishAddCurveToPolygon',
+
+  'startSelectedObjectMove',
+  'continueSelectedObjectMove',
+  'finishSelectedObjectMove'
+
 ]);
 
 module.exports = EditorActions;

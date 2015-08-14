@@ -23,5 +23,6 @@ export default keyMirror({
   ADD_POLYGON_NEXT_POINT_ADDED: null,
   EDIT_POLYGON_POINT: null,
   EDIT_POLYGON_CURVE_POINT: null,
-  ADD_CURVE_TO_POLYGON: null
+  ADD_CURVE_TO_POLYGON: null,
+  SELECTED_OBJ_MOVE: null
 });

@@ -134,7 +134,6 @@ var ImagePreview = React.createClass({
   },
 
   onMouseMove: function(e) {
-
     // TODO: move dragging state to Editor state machine
     if (this.state.dragging) {
       this.handleMouseMove(e);
@@ -147,7 +146,30 @@ var ImagePreview = React.createClass({
     };
 
     var image = this.props.image;
+
     switch(image.get('editState')) {
+
+      case EditorStates.SELECTED_OBJ_MOVE:
+        EditorActions.continueSelectedObjectMove({
+          x: e.pageX,
+          y: e.pageY
+        });
+      break;
+
+      case EditorStates.EDIT_POLYGON_POINT:
+        EditorActions.movePointPolygonEditMode({
+          x: e.pageX,
+          y: e.pageY
+        });
+      break;
+
+      case EditorStates.EDIT_POLYGON_CURVE_POINT:
+        EditorActions.moveCurvePointPolygonEditMode({
+          x: e.pageX,
+          y: e.pageY
+        });
+      break;
+
       case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
       case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
         EditorActions.continueAddRect(mousePosition);
@@ -162,8 +184,6 @@ var ImagePreview = React.createClass({
 
         e.preventDefault();
         e.stopPropagation();
-      break;
-      default:
       break;
     }
   },
@@ -185,13 +205,23 @@ var ImagePreview = React.createClass({
       case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
       case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
         EditorActions.finishAddRect(mousePosition);
-
-        e.preventDefault();
-        e.stopPropagation();
       break;
-      default:
+
+      case EditorStates.EDIT_POLYGON_POINT:
+        EditorActions.finishEditPointPolygonEditMode();
+      break;
+
+      case EditorStates.EDIT_POLYGON_CURVE_POINT:
+        EditorActions.finishEditCurvePointPolygonEditMode();
+      break;
+
+      case EditorStates.SELECTED_OBJ_MOVE:
+        EditorActions.finishSelectedObjectMove();
       break;
     }
+
+    e.preventDefault();
+    e.stopPropagation();
   },
 
   onKeyPressed: function(e) {
@@ -260,19 +290,13 @@ var ImagePreview = React.createClass({
     switch(editState) {
       case EditorStates.ADD_RECT_FIRST_POINT_ADDED:
       case EditorStates.ADD_RECT_SECOND_POINT_ADDED:
-        svgObject = image.get('editStateData');
-      break;
       case EditorStates.ADD_POLYGON_FIRST_TWO_POINTS_ADDED:
       case EditorStates.ADD_POLYGON_NEXT_POINT_ADDED:
-        svgObject = image.get('editStateData');
-      break;
       case EditorStates.EDIT_POLYGON_POINT:
-        svgObject = image.get('editStateData');
-      break;
       case EditorStates.EDIT_POLYGON_CURVE_POINT:
-        svgObject = image.get('editStateData');
-      break;
       case EditorStates.ADD_CURVE_TO_POLYGON:
+      case EditorStates.SELECTED_OBJ_MOVE:
+
         svgObject = image.get('editStateData');
       break;
       default:
