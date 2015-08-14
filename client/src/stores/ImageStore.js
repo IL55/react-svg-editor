@@ -1181,8 +1181,7 @@ var ImageStore = Reflux.createStore({
     var point = polygon.get(pointID);
 
     var cmd = point.get('cmd');
-    if (cmd === 'C' ||  // already curve
-        cmd === 'M') {  // first point - ignore for now
+    if (cmd === 'C') {
       return;
     }
 
@@ -1191,7 +1190,23 @@ var ImageStore = Reflux.createStore({
       y: point.get('y')
     };
 
-    var prevPoint = polygon.get(pointID - 1);
+    var prevPoint;
+    if (cmd === 'M') {
+      // get last point
+      var lastPoint = polygon.last();
+      // check if last point already has been cloned
+      if ((lastPoint.get('x') === pointPos.x) &&
+          (lastPoint.get('y') === pointPos.y)) {
+        return;
+      }
+
+      // clone and add new point with the same (x,y) as a first point
+      polygon = polygon.push(point);
+      pointID = polygon.size - 1;
+    }
+
+    prevPoint = polygon.get(pointID - 1);
+
     var prevPointPos = {
       x: prevPoint.get('x'),
       y: prevPoint.get('y')
@@ -1199,10 +1214,10 @@ var ImageStore = Reflux.createStore({
 
     //point = point.set('selected', true);
     point = point.set('cmd', 'C');
-    point = point.set('x1', pointPos.x - (pointPos.x - prevPointPos.x) * (1.0 / 3.0));
-    point = point.set('y1', pointPos.y - (pointPos.y - prevPointPos.y) * (1.0 / 3.0));
-    point = point.set('x2', pointPos.x - (pointPos.x - prevPointPos.x) * (2.0 / 3.0));
-    point = point.set('y2', pointPos.y - (pointPos.y - prevPointPos.y) * (2.0 / 3.0));
+    point = point.set('x1', pointPos.x - (pointPos.x - prevPointPos.x) * (2.0 / 3.0));
+    point = point.set('y1', pointPos.y - (pointPos.y - prevPointPos.y) * (2.0 / 3.0));
+    point = point.set('x2', pointPos.x - (pointPos.x - prevPointPos.x) * (1.0 / 3.0));
+    point = point.set('y2', pointPos.y - (pointPos.y - prevPointPos.y) * (1.0 / 3.0));
 
     polygon = polygon.set(pointID, point);
     svgObject = svgObject.set('polygon', polygon);

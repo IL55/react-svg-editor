@@ -37,8 +37,9 @@ var ControlPath = React.createClass({
     }
     var objectID = this.props.objectID;
     var editState = this.props.editState;
+    var polygon = this.props.polygon;
 
-    var controlPoints = this.props.polygon.map(function(point, i) {
+    var controlPoints = polygon.map(function(point, i) {
       var cmd = point.get('cmd');
       var res;
       switch(cmd) {
@@ -50,8 +51,8 @@ var ControlPath = React.createClass({
         case 'C':
           res = <g key={i}>
                   <ControlPathPoint x={point.get('x')} y={point.get('y')} objectID={objectID} editState={editState} pointID={i}/>
-                  <ControlPathCurvePoint point={point} objectID={objectID} editState={editState} pointID={i} curvePointID="1" />
-                  <ControlPathCurvePoint point={point} objectID={objectID} editState={editState} pointID={i} curvePointID="2" />
+                  <ControlPathCurvePoint polygon={polygon} point={point} objectID={objectID} editState={editState} pointID={i} curvePointID="1" />
+                  <ControlPathCurvePoint polygon={polygon} point={point} objectID={objectID} editState={editState} pointID={i} curvePointID="2" />
                 </g>;
         break;
       }
